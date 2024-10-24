@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+nav {
+  background-color: black; /* Fond noir pour la barre de navigation */
+}
+
+a {
+  position: relative; /* Position relative pour les effets */
+  display: inline-block; /* Pour que l'effet de fond fonctionne */
+}
+
+a:hover {
+  color: transparent; /* Cache le texte normal */
+  background: linear-gradient(
+    45deg,
+    #ffd700,
+    #b62cd5
+  ); /* Dégradé de couleur pour l'effet */
+  -webkit-background-clip: text; /* Clip de fond pour le texte */
+  background-clip: text; /* Clip de fond pour le texte */
+}
+
+a:hover::after {
+  transform: scaleX(1); /* Affiche le soulignement au survol */
+}
+/* Neon effect styles */
+.neon-border-violet {
+  box-shadow: 0px 0px 20px 5px rgba(138, 43, 226, 0.8);
+}
+
+.neon-border-bleu {
+  box-shadow: 0px 0px 20px 5px rgba(0, 0, 255, 0.8);
+}
+
+.neon-border-vert {
+  box-shadow: 0px 0px 20px 5px rgba(0, 255, 0, 0.8);
+}
+
+.neon-border-orange {
+  box-shadow: 0px 0px 20px 5px rgba(255, 165, 0, 0.8);
+}
+
+.neon-border-jaune {
+  box-shadow: 0px 0px 20px 5px rgba(255, 255, 0, 0.8);
+}
+
+.neon-border-rouge {
+  box-shadow: 0px 0px 20px 5px rgba(255, 0, 0, 0.8);
+}
+
+.neon-border-rose {
+  box-shadow: 0px 0px 20px 5px rgba(255, 20, 147, 0.8);
+}
+/* styles.css ou index.css */
+.font-gamer {
+  font-family: "Orbitron", sans-serif;
+}
