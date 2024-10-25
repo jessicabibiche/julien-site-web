@@ -8,7 +8,7 @@ import {
   resetPassword,
 } from "./profile.controller.js";
 import authenticateUser from "../../middlewares/auth.middleware.js";
-import upload from "../../middlewares/upload.middleware.js";
+import upload from "../../middlewares/upload.middleware.js"; // Gardez cet import
 
 const router = express.Router();
 

@@ -54,6 +54,13 @@ const UserSchema = new Schema({
     type: String,
     match: [/^\d{10}$/, "Veuillez fournir un numéro de téléphone valide"],
   },
+
+  status: {
+    type: String,
+    enum: ["online", "offline"],
+    default: "offline",
+  },
+
   // Champs pour la visibilité des informations
   isEmailPublic: {
     type: Boolean,
@@ -81,7 +88,7 @@ const UserSchema = new Schema({
   },
   isFriendsListPublic: {
     type: Boolean,
-    default: false, // La liste d'amis est privée par défaut
+    default: false,
   },
   friends: [
     {

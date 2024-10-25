@@ -59,25 +59,29 @@ const removeFriend = async (req, res) => {
 export const searchUser = async (req, res) => {
   const { pseudo, discriminator } = req.query;
 
-  if (!pseudo || !discriminator) {
+  if (!pseudo) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json({ message: "Le pseudo et le discriminateur sont requis" });
+      .json({ message: "Le pseudo est requis" });
   }
 
   try {
-    const user = await User.findOne({ pseudo, discriminator });
-    if (!user) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "Utilisateur non trouvé" });
+    const query = { pseudo: new RegExp(pseudo, "i") }; // Requête insensible à la casse
+    if (discriminator) {
+      query.discriminator = discriminator;
     }
 
-    return res.status(StatusCodes.OK).json({
-      _id: user._id,
-      pseudo: user.pseudo,
-      discriminator: user.discriminator,
-    });
+    const users = await User.find(query).select(
+      "_id pseudo discriminator avatar"
+    );
+
+    if (users.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Aucun utilisateur trouvé" });
+    }
+
+    return res.status(StatusCodes.OK).json(users);
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)

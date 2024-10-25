@@ -18,6 +18,7 @@ import cors from "cors";
 import { rateLimit } from "express-rate-limit";
 import YAML from "yamljs";
 import swaggerUI from "swagger-ui-express";
+import avatarRoutes from "./features/avatars/avatar.routes.js";
 
 // Récupération des chemins corrects dans ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -53,10 +54,7 @@ app.use(express.static("dist"));
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 // Route pour servir les avatars stockés dans le répertoire client/public/avatars
-app.use(
-  "/avatars",
-  express.static(path.join(__dirname, "..", "client", "public", "avatars"))
-);
+app.use("/api/v1/avatars", avatarRoutes);
 
 // Routes
 app.get("/", (_req, res) => {

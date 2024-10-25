@@ -1,0 +1,591 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.8.2
+2 info using node@v20.17.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\.npmrc
+5 silly config load:file:C:\Users\eymer\.npmrc
+6 silly config load:file:C:\Users\eymer\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install multer-storage-cloudinary
+8 verbose argv "install" "multer-storage-cloudinary" "--legacy-peer-deps"
+9 verbose logfile logs-max:10 dir:C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\npm-cache\_logs\2024-10-25T12_58_14_193Z-
+10 verbose logfile C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\npm-cache\_logs\2024-10-25T12_58_14_193Z-debug-0.log
+11 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+12 silly logfile start cleaning logs, removing 1 files
+13 silly logfile done cleaning log files
+14 silly idealTree buildDeps
+15 silly fetch manifest multer-storage-cloudinary@*
+16 silly packumentCache full:https://registry.npmjs.org/multer-storage-cloudinary cache-miss
+17 http fetch GET 200 https://registry.npmjs.org/multer-storage-cloudinary 84ms (cache hit)
+18 silly packumentCache full:https://registry.npmjs.org/multer-storage-cloudinary set size:18961 disposed:false
+19 silly placeDep ROOT multer-storage-cloudinary@4.0.0 OK for: server@1.0.0 want: *
+20 silly reify moves {}
+21 silly audit bulk request {
+21 silly audit   '@adraffy/ens-normalize': [ '1.10.1', '1.11.0' ],
+21 silly audit   '@apimatic/authentication-adapters': [ '0.5.5' ],
+21 silly audit   '@apimatic/axios-client-adapter': [ '0.3.6' ],
+21 silly audit   'form-data': [ '3.0.2', '4.0.1' ],
+21 silly audit   '@apimatic/convert-to-stream': [ '0.1.3', '0.0.2' ],
+21 silly audit   '@apimatic/core': [ '0.10.15' ],
+21 silly audit   '@apimatic/core-interfaces': [ '0.2.7' ],
+21 silly audit   '@apimatic/file-wrapper': [ '0.3.3' ],
+21 silly audit   '@apimatic/http-headers': [ '0.3.3' ],
+21 silly audit   '@apimatic/http-query': [ '0.3.3' ],
+21 silly audit   '@apimatic/json-bigint': [ '1.2.0' ],
+21 silly audit   '@apimatic/oauth-adapters': [ '0.4.7' ],
+21 silly audit   '@apimatic/schema': [ '0.7.13' ],
+21 silly audit   '@coinbase/coinbase-sdk': [ '0.9.1' ],
+21 silly audit   '@esbuild/aix-ppc64': [ '0.21.5' ],
+21 silly audit   '@esbuild/android-arm': [ '0.21.5' ],
+21 silly audit   '@esbuild/android-arm64': [ '0.21.5' ],
+21 silly audit   '@esbuild/android-x64': [ '0.21.5' ],
+21 silly audit   '@esbuild/darwin-arm64': [ '0.21.5' ],
+21 silly audit   '@esbuild/darwin-x64': [ '0.21.5' ],
+21 silly audit   '@esbuild/freebsd-arm64': [ '0.21.5' ],
+21 silly audit   '@esbuild/freebsd-x64': [ '0.21.5' ],
+21 silly audit   '@esbuild/linux-arm': [ '0.21.5' ],
+21 silly audit   '@esbuild/linux-arm64': [ '0.21.5' ],
+21 silly audit   '@esbuild/linux-ia32': [ '0.21.5' ],
+21 silly audit   '@esbuild/linux-loong64': [ '0.21.5' ],
+21 silly audit   '@esbuild/linux-mips64el': [ '0.21.5' ],
+21 silly audit   '@esbuild/linux-ppc64': [ '0.21.5' ],
+21 silly audit   '@esbuild/linux-riscv64': [ '0.21.5' ],
+21 silly audit   '@esbuild/linux-s390x': [ '0.21.5' ],
+21 silly audit   '@esbuild/linux-x64': [ '0.21.5' ],
+21 silly audit   '@esbuild/netbsd-x64': [ '0.21.5' ],
+21 silly audit   '@esbuild/openbsd-x64': [ '0.21.5' ],
+21 silly audit   '@esbuild/sunos-x64': [ '0.21.5' ],
+21 silly audit   '@esbuild/win32-arm64': [ '0.21.5' ],
+21 silly audit   '@esbuild/win32-ia32': [ '0.21.5' ],
+21 silly audit   '@esbuild/win32-x64': [ '0.21.5' ],
+21 silly audit   '@mapbox/node-pre-gyp': [ '1.0.11' ],
+21 silly audit   'node-fetch': [ '2.7.0', '3.3.2' ],
+21 silly audit   tr46: [ '0.0.3', '4.1.1' ],
+21 silly audit   'webidl-conversions': [ '3.0.1', '7.0.0' ],
+21 silly audit   'whatwg-url': [ '5.0.0', '13.0.0' ],
+21 silly audit   '@mongodb-js/saslprep': [ '1.1.9' ],
+21 silly audit   '@noble/curves': [ '1.6.0', '1.2.0' ],
+21 silly audit   '@noble/hashes': [ '1.5.0', '1.3.2' ],
+21 silly audit   '@paypal/checkout-server-sdk': [ '1.0.3' ],
+21 silly audit   '@paypal/paypal-server-sdk': [ '0.6.0' ],
+21 silly audit   '@paypal/paypalhttp': [ '1.0.1' ],
+21 silly audit   '@rollup/rollup-android-arm-eabi': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-android-arm64': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-darwin-arm64': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-darwin-x64': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-linux-arm-gnueabihf': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-linux-arm-musleabihf': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-linux-arm64-gnu': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-linux-arm64-musl': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-linux-powerpc64le-gnu': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-linux-riscv64-gnu': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-linux-s390x-gnu': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-linux-x64-gnu': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-linux-x64-musl': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-win32-arm64-msvc': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-win32-ia32-msvc': [ '4.24.0' ],
+21 silly audit   '@rollup/rollup-win32-x64-msvc': [ '4.24.0' ],
+21 silly audit   '@scure/base': [ '1.1.9' ],
+21 silly audit   '@scure/bip32': [ '1.5.0' ],
+21 silly audit   '@scure/bip39': [ '1.4.0' ],
+21 silly audit   '@socket.io/component-emitter': [ '3.1.2' ],
+21 silly audit   '@types/cookie': [ '0.4.1' ],
+21 silly audit   '@types/cors': [ '2.8.17' ],
+21 silly audit   '@types/estree': [ '1.0.6' ],
+21 silly audit   '@types/node': [ '22.7.7', '22.7.5' ],
+21 silly audit   '@types/webidl-conversions': [ '7.0.3' ],
+21 silly audit   '@types/whatwg-url': [ '11.0.5' ],
+21 silly audit   abbrev: [ '1.1.1' ],
+21 silly audit   abitype: [ '1.0.6' ],
+21 silly audit   accepts: [ '1.3.8' ],
+21 silly audit   'aes-js': [ '4.0.0-beta.5' ],
+21 silly audit   'agent-base': [ '6.0.2' ],
+21 silly audit   debug: [ '4.3.7', '2.6.9' ],
+21 silly audit   ms: [ '2.1.3', '2.0.0' ],
+21 silly audit   'ansi-regex': [ '5.0.1' ],
+21 silly audit   anymatch: [ '3.1.3' ],
+21 silly audit   'append-field': [ '1.0.0' ],
+21 silly audit   aproba: [ '2.0.0' ],
+21 silly audit   'are-we-there-yet': [ '2.0.0' ],
+21 silly audit   argparse: [ '1.0.10' ],
+21 silly audit   'array-flatten': [ '1.1.1' ],
+21 silly audit   asynckit: [ '0.4.0' ],
+21 silly audit   axios: [ '1.7.7' ],
+21 silly audit   'axios-mock-adapter': [ '1.22.0' ],
+21 silly audit   'axios-retry': [ '4.5.0' ],
+21 silly audit   'balanced-match': [ '1.0.2' ],
+21 silly audit   'base-x': [ '3.0.10' ],
+21 silly audit   'base64-js': [ '1.5.1' ],
+21 silly audit   base64id: [ '2.0.0' ],
+21 silly audit   base64url: [ '3.0.1' ],
+21 silly audit   'basic-auth': [ '2.0.1' ],
+21 silly audit   'safe-buffer': [ '5.1.2', '5.2.1' ],
+21 silly audit   bcrypt: [ '5.1.1' ],
+21 silly audit   bcryptjs: [ '2.4.3' ],
+21 silly audit   'binary-extensions': [ '2.3.0' ],
+21 silly audit   bip32: [ '4.0.0' ],
+21 silly audit   bip39: [ '3.1.0' ],
+21 silly audit   'bn.js': [ '4.12.0' ],
+21 silly audit   'body-parser': [ '1.20.3' ],
+21 silly audit   'brace-expansion': [ '1.1.11' ],
+21 silly audit   braces: [ '3.0.3' ],
+21 silly audit   brorand: [ '1.1.0' ],
+21 silly audit   bs58: [ '4.0.1' ],
+21 silly audit   bs58check: [ '2.1.2' ],
+21 silly audit   bson: [ '6.8.0' ],
+21 silly audit   buffer: [ '6.0.3' ],
+21 silly audit   'buffer-equal-constant-time': [ '1.0.1' ],
+21 silly audit   'buffer-from': [ '1.1.2' ],
+21 silly audit   busboy: [ '1.6.0' ],
+21 silly audit   bytes: [ '3.1.2' ],
+21 silly audit   'call-bind': [ '1.0.7' ],
+21 silly audit   chokidar: [ '3.6.0' ],
+21 silly audit   chownr: [ '2.0.0' ],
+21 silly audit   'cipher-base': [ '1.0.4' ],
+21 silly audit   cloudinary: [ '2.5.1' ],
+21 silly audit   'color-support': [ '1.1.3' ],
+21 silly audit   'combined-stream': [ '1.0.8' ],
+21 silly audit   'concat-map': [ '0.0.1' ],
+21 silly audit   'concat-stream': [ '1.6.2' ],
+21 silly audit   'readable-stream': [ '2.3.8', '3.6.2' ],
+21 silly audit   string_decoder: [ '1.1.1', '1.3.0' ],
+21 silly audit   'console-control-strings': [ '1.1.0' ],
+21 silly audit   'content-disposition': [ '0.5.4' ],
+21 silly audit   'content-type': [ '1.0.5' ],
+21 silly audit   cookie: [ '0.7.1', '0.7.2' ],
+21 silly audit   'cookie-signature': [ '1.0.6' ],
+21 silly audit   'core-util-is': [ '1.0.3' ],
+21 silly audit   cors: [ '2.8.5' ],
+21 silly audit   'create-hash': [ '1.2.0' ],
+21 silly audit   'data-uri-to-buffer': [ '4.0.1' ],
+21 silly audit   'decimal.js': [ '10.4.3' ],
+21 silly audit   'define-data-property': [ '1.1.4' ],
+21 silly audit   'delayed-stream': [ '1.0.0' ],
+21 silly audit   delegates: [ '1.0.0' ],
+21 silly audit   depd: [ '2.0.0' ],
+21 silly audit   destroy: [ '1.2.0' ],
+21 silly audit   'detect-browser': [ '5.3.0' ],
+21 silly audit   'detect-libc': [ '2.0.3' ],
+21 silly audit   'detect-node': [ '2.1.0' ],
+21 silly audit   dotenv: [ '16.4.5' ],
+21 silly audit   'ecdsa-sig-formatter': [ '1.0.11' ],
+21 silly audit   'ee-first': [ '1.1.1' ],
+21 silly audit   elliptic: [ '6.5.7' ],
+21 silly audit   'emoji-regex': [ '8.0.0' ],
+21 silly audit   encodeurl: [ '2.0.0', '1.0.2' ],
+21 silly audit   'engine.io': [ '6.6.2' ],
+21 silly audit   'engine.io-client': [ '6.6.2' ],
+21 silly audit   'engine.io-parser': [ '5.2.3' ],
+21 silly audit   'es-define-property': [ '1.0.0' ],
+21 silly audit   'es-errors': [ '1.3.0' ],
+21 silly audit   'es6-promise': [ '4.2.8' ],
+21 silly audit   esbuild: [ '0.21.5' ],
+21 silly audit   'escape-html': [ '1.0.3' ],
+21 silly audit   etag: [ '1.8.1' ],
+21 silly audit   ethers: [ '6.13.4' ],
+21 silly audit   express: [ '4.21.1' ],
+21 silly audit   'express-async-errors': [ '3.1.1' ],
+21 silly audit   'express-mongo-sanitize': [ '2.2.0' ],
+21 silly audit   'express-rate-limit': [ '7.4.1' ],
+21 silly audit   'fast-deep-equal': [ '3.1.3' ],
+21 silly audit   'fetch-blob': [ '3.2.0' ],
+21 silly audit   'fill-range': [ '7.1.1' ],
+21 silly audit   finalhandler: [ '1.3.1' ],
+21 silly audit   'follow-redirects': [ '1.15.9' ],
+21 silly audit   'formdata-polyfill': [ '4.0.10' ],
+21 silly audit   forwarded: [ '0.2.0' ],
+21 silly audit   fresh: [ '0.5.2' ],
+21 silly audit   'fs-minipass': [ '2.1.0' ],
+21 silly audit   minipass: [ '3.3.6', '5.0.0' ],
+21 silly audit   'fs.realpath': [ '1.0.0' ],
+21 silly audit   fsevents: [ '2.3.3' ],
+21 silly audit   'function-bind': [ '1.1.2' ],
+21 silly audit   gauge: [ '3.0.2' ],
+21 silly audit   'get-intrinsic': [ '1.2.4' ],
+21 silly audit   glob: [ '7.2.3' ],
+21 silly audit   'glob-parent': [ '5.1.2' ],
+21 silly audit   gopd: [ '1.0.1' ],
+21 silly audit   'has-flag': [ '3.0.0' ],
+21 silly audit   'has-property-descriptors': [ '1.0.2' ],
+21 silly audit   'has-proto': [ '1.0.3' ],
+21 silly audit   'has-symbols': [ '1.0.3' ],
+21 silly audit   'has-unicode': [ '2.0.1' ],
+21 silly audit   'hash-base': [ '3.1.0' ],
+21 silly audit   'hash.js': [ '1.1.7' ],
+21 silly audit   hasown: [ '2.0.2' ],
+21 silly audit   helmet: [ '8.0.0' ],
+21 silly audit   'hmac-drbg': [ '1.0.1' ],
+21 silly audit   'http-errors': [ '2.0.0' ],
+21 silly audit   'http-status-codes': [ '2.3.0' ],
+21 silly audit   'https-proxy-agent': [ '5.0.1' ],
+21 silly audit   'iconv-lite': [ '0.4.24' ],
+21 silly audit   ieee754: [ '1.2.1' ],
+21 silly audit   'ignore-by-default': [ '1.0.1' ],
+21 silly audit   inflight: [ '1.0.6' ],
+21 silly audit   inherits: [ '2.0.4' ],
+21 silly audit   'ipaddr.js': [ '1.9.1' ],
+21 silly audit   'is-binary-path': [ '2.1.0' ],
+21 silly audit   'is-buffer': [ '2.0.5' ],
+21 silly audit   'is-extglob': [ '2.1.1' ],
+21 silly audit   'is-fullwidth-code-point': [ '3.0.0' ],
+21 silly audit   'is-glob': [ '4.0.3' ],
+21 silly audit   'is-number': [ '7.0.0' ],
+21 silly audit   'is-retry-allowed': [ '2.2.0' ],
+21 silly audit   isarray: [ '1.0.0' ],
+21 silly audit   isows: [ '1.0.6' ],
+21 silly audit   'json-ptr': [ '3.1.1' ],
+21 silly audit   jsonwebtoken: [ '9.0.2' ],
+21 silly audit   jwa: [ '1.4.1' ],
+21 silly audit   jws: [ '3.2.2' ],
+21 silly audit   kareem: [ '2.6.3' ],
+21 silly audit   lodash: [ '4.17.21' ],
+21 silly audit   'lodash.defaultsdeep': [ '4.6.1' ],
+21 silly audit   'lodash.flatmap': [ '4.5.0' ],
+21 silly audit   'lodash.includes': [ '4.3.0' ],
+21 silly audit   'lodash.isboolean': [ '3.0.3' ],
+21 silly audit   'lodash.isinteger': [ '4.0.4' ],
+21 silly audit   'lodash.isnumber': [ '3.0.3' ],
+21 silly audit   'lodash.isplainobject': [ '4.0.6' ],
+21 silly audit   'lodash.isstring': [ '4.0.1' ],
+21 silly audit   'lodash.once': [ '4.1.1' ],
+21 silly audit   long: [ '5.2.3' ],
+21 silly audit   'make-dir': [ '3.1.0' ],
+21 silly audit   semver: [ '6.3.1', '7.6.3' ],
+21 silly audit   'md5.js': [ '1.3.5' ],
+21 silly audit   'media-typer': [ '0.3.0' ],
+21 silly audit   'memory-pager': [ '1.5.0' ],
+21 silly audit   'merge-descriptors': [ '1.0.3' ],
+21 silly audit   methods: [ '1.1.2' ],
+21 silly audit   mime: [ '1.6.0' ],
+21 silly audit   'mime-db': [ '1.52.0' ],
+21 silly audit   'mime-types': [ '2.1.35' ],
+21 silly audit   'minimalistic-assert': [ '1.0.1' ],
+21 silly audit   'minimalistic-crypto-utils': [ '1.0.1' ],
+21 silly audit   minimatch: [ '3.1.2' ],
+21 silly audit   minimist: [ '1.2.8' ],
+21 silly audit   minizlib: [ '2.1.2' ],
+21 silly audit   mkdirp: [ '1.0.4', '0.5.6' ],
+21 silly audit   mongodb: [ '6.9.0' ],
+21 silly audit   'mongodb-connection-string-url': [ '3.0.1' ],
+21 silly audit   mongoose: [ '8.7.1' ],
+21 silly audit   morgan: [ '1.10.0' ],
+21 silly audit   'on-finished': [ '2.3.0', '2.4.1' ],
+21 silly audit   mpath: [ '0.9.0' ],
+21 silly audit   mquery: [ '5.0.0' ],
+21 silly audit   multer: [ '1.4.5-lts.1' ],
+21 silly audit   nanoid: [ '3.3.7' ],
+21 silly audit   negotiator: [ '0.6.3' ],
+21 silly audit   'node-addon-api': [ '5.1.0' ],
+21 silly audit   'node-domexception': [ '1.0.0' ],
+21 silly audit   'node-forge': [ '1.3.1' ],
+21 silly audit   'node-gyp-build': [ '4.8.2' ],
+21 silly audit   'node-jose': [ '2.2.0' ],
+21 silly audit   nodemailer: [ '6.9.15' ],
+21 silly audit   nodemon: [ '3.1.7' ],
+21 silly audit   nopt: [ '5.0.0' ],
+21 silly audit   'normalize-path': [ '3.0.0' ],
+21 silly audit   npmlog: [ '5.0.1' ],
+21 silly audit   'object-assign': [ '4.1.1' ],
+21 silly audit   'object-inspect': [ '1.13.2' ],
+21 silly audit   'on-headers': [ '1.0.2' ],
+21 silly audit   once: [ '1.4.0' ],
+21 silly audit   pako: [ '2.1.0' ],
+21 silly audit   parseurl: [ '1.3.3' ],
+21 silly audit   'path-is-absolute': [ '1.0.1' ],
+21 silly audit   'path-to-regexp': [ '0.1.10' ],
+21 silly audit   picocolors: [ '1.1.0' ],
+21 silly audit   picomatch: [ '2.3.1' ],
+21 silly audit   postcss: [ '8.4.47' ],
+21 silly audit   process: [ '0.11.10' ],
+21 silly audit   'process-nextick-args': [ '2.0.1' ],
+21 silly audit   'proxy-addr': [ '2.0.7' ],
+21 silly audit   'proxy-from-env': [ '1.1.0' ],
+21 silly audit   'pstree.remy': [ '1.1.8' ],
+21 silly audit   punycode: [ '2.3.1' ],
+21 silly audit   q: [ '1.5.1' ],
+21 silly audit   qs: [ '6.13.0' ],
+21 silly audit   'range-parser': [ '1.2.1' ],
+21 silly audit   'raw-body': [ '2.5.2' ],
+21 silly audit   readdirp: [ '3.6.0' ],
+21 silly audit   rimraf: [ '3.0.2' ],
+21 silly audit   ripemd160: [ '2.0.2' ],
+21 silly audit   rollup: [ '4.24.0' ],
+21 silly audit   'safer-buffer': [ '2.1.2' ],
+21 silly audit   secp256k1: [ '5.0.1' ],
+21 silly audit   send: [ '0.19.0' ],
+21 silly audit   'serve-static': [ '1.16.2' ],
+21 silly audit   'set-blocking': [ '2.0.0' ],
+21 silly audit   'set-function-length': [ '1.2.2' ],
+21 silly audit   setprototypeof: [ '1.2.0' ],
+21 silly audit   'sha.js': [ '2.4.11' ],
+21 silly audit   'side-channel': [ '1.0.6' ],
+21 silly audit   sift: [ '17.1.3' ],
+21 silly audit   'signal-exit': [ '3.0.7' ],
+21 silly audit   'simple-update-notifier': [ '2.0.0' ],
+21 silly audit   'socket.io': [ '4.8.1' ],
+21 silly audit   'socket.io-adapter': [ '2.5.5' ],
+21 silly audit   'socket.io-client': [ '4.8.1' ],
+21 silly audit   'socket.io-parser': [ '4.2.4' ],
+21 silly audit   'source-map-js': [ '1.2.1' ],
+21 silly audit   'sparse-bitfield': [ '3.0.3' ],
+21 silly audit   'sprintf-js': [ '1.0.3' ],
+21 silly audit   statuses: [ '2.0.1' ],
+21 silly audit   streamsearch: [ '1.1.0' ],
+21 silly audit   'string-width': [ '4.2.3' ],
+21 silly audit   'strip-ansi': [ '6.0.1' ],
+21 silly audit   stripe: [ '17.2.1' ],
+21 silly audit   'supports-color': [ '5.5.0' ],
+21 silly audit   'swagger-ui-dist': [ '5.17.14' ],
+21 silly audit   'swagger-ui-express': [ '5.0.1' ],
+21 silly audit   tar: [ '6.2.1' ],
+21 silly audit   'tiny-warning': [ '1.0.3' ],
+21 silly audit   'to-regex-range': [ '5.0.1' ],
+21 silly audit   toidentifier: [ '1.0.1' ],
+21 silly audit   touch: [ '3.1.1' ],
+21 silly audit   tslib: [ '2.7.0' ],
+21 silly audit   'type-is': [ '1.6.18' ],
+21 silly audit   typedarray: [ '0.0.6' ],
+21 silly audit   typeforce: [ '1.18.0' ],
+21 silly audit   undefsafe: [ '2.0.5' ],
+21 silly audit   'undici-types': [ '6.19.8' ],
+21 silly audit   unpipe: [ '1.0.0' ],
+21 silly audit   'util-deprecate': [ '1.0.2' ],
+21 silly audit   'utils-merge': [ '1.0.1' ],
+21 silly audit   uuid: [ '9.0.1' ],
+21 silly audit   vary: [ '1.1.2' ],
+21 silly audit   viem: [ '2.21.32' ],
+21 silly audit   ws: [ '8.18.0', '8.17.1' ],
+21 silly audit   vite: [ '5.4.9' ],
+21 silly audit   'web-streams-polyfill': [ '3.3.3' ],
+21 silly audit   'webauthn-p256': [ '0.0.10' ],
+21 silly audit   'wide-align': [ '1.1.5' ],
+21 silly audit   wif: [ '2.0.6' ],
+21 silly audit   wrappy: [ '1.0.2' ],
+21 silly audit   'xmlhttprequest-ssl': [ '2.1.2' ],
+21 silly audit   xtend: [ '4.0.2' ],
+21 silly audit   yallist: [ '4.0.0' ],
+21 silly audit   yamljs: [ '0.3.0' ],
+21 silly audit   zod: [ '3.23.8' ],
+21 silly audit   'multer-storage-cloudinary': [ '4.0.0' ]
+21 silly audit }
+22 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\fsevents
+23 silly reify mark deleted [
+23 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\fsevents'
+23 silly reify ]
+24 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-win32-ia32-msvc
+25 silly reify mark deleted [
+25 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-win32-ia32-msvc'
+25 silly reify ]
+26 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-win32-arm64-msvc
+27 silly reify mark deleted [
+27 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-win32-arm64-msvc'
+27 silly reify ]
+28 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-linux-x64-musl
+29 silly reify mark deleted [
+29 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-linux-x64-musl'
+29 silly reify ]
+30 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-linux-x64-gnu
+31 silly reify mark deleted [
+31 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-linux-x64-gnu'
+31 silly reify ]
+32 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-linux-s390x-gnu
+33 silly reify mark deleted [
+33 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-linux-s390x-gnu'
+33 silly reify ]
+34 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-linux-riscv64-gnu
+35 silly reify mark deleted [
+35 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-linux-riscv64-gnu'
+35 silly reify ]
+36 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-linux-powerpc64le-gnu
+37 silly reify mark deleted [
+37 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-linux-powerpc64le-gnu'
+37 silly reify ]
+38 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-linux-arm64-musl
+39 silly reify mark deleted [
+39 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-linux-arm64-musl'
+39 silly reify ]
+40 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-linux-arm64-gnu
+41 silly reify mark deleted [
+41 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-linux-arm64-gnu'
+41 silly reify ]
+42 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-linux-arm-musleabihf
+43 silly reify mark deleted [
+43 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-linux-arm-musleabihf'
+43 silly reify ]
+44 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-linux-arm-gnueabihf
+45 silly reify mark deleted [
+45 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-linux-arm-gnueabihf'
+45 silly reify ]
+46 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-darwin-x64
+47 silly reify mark deleted [
+47 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-darwin-x64'
+47 silly reify ]
+48 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-darwin-arm64
+49 silly reify mark deleted [
+49 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-darwin-arm64'
+49 silly reify ]
+50 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-android-arm64
+51 silly reify mark deleted [
+51 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-android-arm64'
+51 silly reify ]
+52 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@rollup\rollup-android-arm-eabi
+53 silly reify mark deleted [
+53 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@rollup\\rollup-android-arm-eabi'
+53 silly reify ]
+54 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\win32-ia32
+55 silly reify mark deleted [
+55 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\win32-ia32'
+55 silly reify ]
+56 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\win32-arm64
+57 silly reify mark deleted [
+57 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\win32-arm64'
+57 silly reify ]
+58 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\sunos-x64
+59 silly reify mark deleted [
+59 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\sunos-x64'
+59 silly reify ]
+60 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\openbsd-x64
+61 silly reify mark deleted [
+61 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\openbsd-x64'
+61 silly reify ]
+62 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\netbsd-x64
+63 silly reify mark deleted [
+63 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\netbsd-x64'
+63 silly reify ]
+64 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\linux-x64
+65 silly reify mark deleted [
+65 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\linux-x64'
+65 silly reify ]
+66 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\linux-s390x
+67 silly reify mark deleted [
+67 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\linux-s390x'
+67 silly reify ]
+68 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\linux-riscv64
+69 silly reify mark deleted [
+69 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\linux-riscv64'
+69 silly reify ]
+70 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\linux-ppc64
+71 silly reify mark deleted [
+71 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\linux-ppc64'
+71 silly reify ]
+72 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\linux-mips64el
+73 silly reify mark deleted [
+73 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\linux-mips64el'
+73 silly reify ]
+74 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\linux-loong64
+75 silly reify mark deleted [
+75 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\linux-loong64'
+75 silly reify ]
+76 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\linux-ia32
+77 silly reify mark deleted [
+77 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\linux-ia32'
+77 silly reify ]
+78 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\linux-arm64
+79 silly reify mark deleted [
+79 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\linux-arm64'
+79 silly reify ]
+80 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\linux-arm
+81 silly reify mark deleted [
+81 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\linux-arm'
+81 silly reify ]
+82 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\freebsd-x64
+83 silly reify mark deleted [
+83 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\freebsd-x64'
+83 silly reify ]
+84 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\freebsd-arm64
+85 silly reify mark deleted [
+85 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\freebsd-arm64'
+85 silly reify ]
+86 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\darwin-x64
+87 silly reify mark deleted [
+87 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\darwin-x64'
+87 silly reify ]
+88 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\darwin-arm64
+89 silly reify mark deleted [
+89 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\darwin-arm64'
+89 silly reify ]
+90 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\android-x64
+91 silly reify mark deleted [
+91 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\android-x64'
+91 silly reify ]
+92 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\android-arm64
+93 silly reify mark deleted [
+93 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\android-arm64'
+93 silly reify ]
+94 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\android-arm
+95 silly reify mark deleted [
+95 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\android-arm'
+95 silly reify ]
+96 verbose reify failed optional dependency C:\Users\eymer\OneDrive\Bureau\julien-site-web\server\node_modules\@esbuild\aix-ppc64
+97 silly reify mark deleted [
+97 silly reify   'C:\\Users\\eymer\\OneDrive\\Bureau\\julien-site-web\\server\\node_modules\\@esbuild\\aix-ppc64'
+97 silly reify ]
+98 silly tarball no local data for multer-storage-cloudinary@https://registry.npmjs.org/multer-storage-cloudinary/-/multer-storage-cloudinary-4.0.0.tgz. Extracting by manifest.
+99 http fetch GET 200 https://registry.npmjs.org/multer-storage-cloudinary/-/multer-storage-cloudinary-4.0.0.tgz 146ms (cache miss)
+100 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 341ms
+101 silly audit report {
+101 silly audit report   elliptic: [
+101 silly audit report     {
+101 silly audit report       id: 1100186,
+101 silly audit report       url: 'https://github.com/advisories/GHSA-fc9h-whq2-v747',
+101 silly audit report       title: 'Valid ECDSA signatures erroneously rejected in Elliptic',
+101 silly audit report       severity: 'low',
+101 silly audit report       vulnerable_versions: '<=6.5.7',
+101 silly audit report       cwe: [Array],
+101 silly audit report       cvss: [Object]
+101 silly audit report     }
+101 silly audit report   ]
+101 silly audit report }
+102 silly packumentCache corgi:https://registry.npmjs.org/elliptic cache-miss
+103 http fetch GET 200 https://registry.npmjs.org/elliptic 117ms (cache revalidated)
+104 silly packumentCache corgi:https://registry.npmjs.org/elliptic set size:64999 disposed:false
+105 silly packumentCache corgi:https://registry.npmjs.org/secp256k1 cache-miss
+106 http fetch GET 200 https://registry.npmjs.org/secp256k1 51ms (cache revalidated)
+107 silly packumentCache corgi:https://registry.npmjs.org/secp256k1 set size:65099 disposed:false
+108 silly packumentCache corgi:https://registry.npmjs.org/@coinbase%2fcoinbase-sdk cache-miss
+109 http fetch GET 200 https://registry.npmjs.org/@coinbase%2fcoinbase-sdk 1059ms (cache revalidated)
+110 silly packumentCache corgi:https://registry.npmjs.org/@coinbase%2fcoinbase-sdk set size:36965 disposed:false
+111 silly ADD node_modules/multer-storage-cloudinary
+112 silly ADD
+113 silly ADD
+114 silly ADD
+115 silly ADD
+116 silly ADD
+117 silly ADD
+118 silly ADD
+119 silly ADD
+120 silly ADD
+121 silly ADD
+122 silly ADD
+123 silly ADD
+124 silly ADD
+125 silly ADD
+126 silly ADD
+127 silly ADD
+128 silly ADD
+129 silly ADD
+130 silly ADD
+131 silly ADD
+132 silly ADD
+133 silly ADD
+134 silly ADD
+135 silly ADD
+136 silly ADD
+137 silly ADD
+138 silly ADD
+139 silly ADD
+140 silly ADD
+141 silly ADD
+142 silly ADD
+143 silly ADD
+144 silly ADD
+145 silly ADD
+146 silly ADD
+147 silly ADD
+148 silly ADD
+149 silly ADD
+150 verbose cwd C:\Users\eymer\OneDrive\Bureau\julien-site-web\server
+151 verbose os Windows_NT 10.0.22631
+152 verbose node v20.17.0
+153 verbose npm  v10.8.2
+154 verbose exit 0
+155 info ok

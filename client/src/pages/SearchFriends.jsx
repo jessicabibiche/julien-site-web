@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { searchUser, addFriend } from "../services/user.services"; // Importe les fonctions correspondantes
 
 const SearchFriends = () => {
@@ -6,20 +6,26 @@ const SearchFriends = () => {
   const [discriminator, setDiscriminator] = useState(""); // Ex. #1234
   const [searchResults, setSearchResults] = useState([]);
   const [error, setError] = useState("");
+
   useEffect(() => {
     // Recherche d'utilisateur dès que pseudo est modifié, avec un délai pour éviter trop de requêtes
     const timer = setTimeout(() => {
-      if (pseudo) {
+      if (pseudo && discriminator) {
         handleSearch();
       }
     }, 500); // Délai de 500 ms
 
     return () => clearTimeout(timer); // Cleanup
-  }, [pseudo]);
+  }, [pseudo, discriminator]);
 
   // Fonction pour effectuer la recherche d'utilisateur
   const handleSearch = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+
+    if (!pseudo || !discriminator) {
+      setError("Veuillez remplir le pseudo et le discriminateur.");
+      return;
+    }
 
     try {
       const users = await searchUser(pseudo, discriminator);
@@ -59,6 +65,7 @@ const SearchFriends = () => {
           onChange={(e) => setDiscriminator(e.target.value)}
           placeholder="Discriminator (#1234)"
           className="w-full p-2 rounded"
+          required
         />
         <button type="submit" className="bg-blue-500 w-full p-2 rounded">
           Rechercher

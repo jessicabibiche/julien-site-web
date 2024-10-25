@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import defaultAvatar from "/avatars/avatardefault.png";
 import { FaGamepad } from "react-icons/fa";
-import { searchUser } from "../services/user.services";
+
 function Navbar({
   isAuthenticated,
   setIsAuthenticated,
@@ -11,8 +11,8 @@ function Navbar({
 }) {
   const [langue, setLangue] = useState("français");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [userStatus, setUserStatus] = useState("offline"); // État de l'utilisateur : "online", "busy", "offline"
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -26,6 +26,7 @@ function Navbar({
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
+        setShowStatusDropdown(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -33,12 +34,6 @@ function Navbar({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const handleLangueChange = (e) => {
-    const newLangue = e.target.value;
-    setLangue(newLangue);
-    localStorage.setItem("langue", newLangue);
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -51,18 +46,9 @@ function Navbar({
     setShowDropdown((prev) => !prev);
   };
 
-  // Fonction pour gérer la recherche d'amis
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchTerm) return;
-
-    try {
-      const results = await searchUser(searchTerm);
-      setSearchResults(results);
-      navigate("/search-friends", { state: { results } });
-    } catch (err) {
-      console.error("Erreur lors de la recherche d'utilisateur :", err);
-    }
+  const handleStatusChange = (status) => {
+    setUserStatus(status);
+    setShowStatusDropdown(false); // Ferme le sous-menu après avoir choisi un statut
   };
 
   return (
@@ -72,6 +58,7 @@ function Navbar({
       </div>
 
       <div className="flex items-center space-x-6">
+        {/* Liens de navigation */}
         {[
           { label: "Accueil", path: "/" },
           { label: "Vidéos", path: "/videos" },
@@ -87,48 +74,82 @@ function Navbar({
             {item.label}
           </Link>
         ))}
+
+        {/* Bouton de soutien */}
         <Link
           to="/donations"
           className="text-lg font-semibold px-4 py-2 transition-all duration-300 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-full hover:shadow-lg flex items-center space-x-2"
         >
           <FaGamepad className="text-white" /> <span>Soutenir</span>
         </Link>
-        {/* Champ de recherche d'amis */}
-        <form onSubmit={handleSearch} className="relative">
-          <input
-            type="text"
-            placeholder="Rechercher des amis..."
-            className="px-4 py-2 rounded-full bg-gray-800 text-white"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="ml-2 bg-yellow-500 px-4 py-2 rounded-full text-white"
-          >
-            Rechercher
-          </button>
-        </form>
-        {isAuthenticated ? (
+
+        {/* Menu Avatar */}
+        {isAuthenticated && (
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={toggleDropdown}
               className="flex items-center space-x-2 px-4 py-2"
             >
-              <div
-                className={`w-10 h-10 rounded-full border-4 ${
-                  userAvatar === defaultAvatar ? "neon-border-violet" : ""
-                }`}
-              >
+              {/* Avatar avec indicateur de statut */}
+              <div className="relative w-10 h-10 rounded-full border-4 neon-border-violet">
                 <img
                   src={userAvatar || defaultAvatar}
                   alt="Avatar"
                   className="w-10 h-10 rounded-full object-cover"
                 />
+                {/* Indicateur d'état en ligne */}
+                <span
+                  className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${
+                    userStatus === "online"
+                      ? "bg-green-500"
+                      : userStatus === "busy"
+                      ? "bg-yellow-500"
+                      : "bg-gray-400"
+                  }`}
+                ></span>
               </div>
             </button>
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-800 text-white rounded-lg shadow-lg py-2 z-20">
+              <div className="absolute right-0 mt-2 w-56 bg-gray-800 text-white rounded-lg shadow-lg py-2 z-20">
+                {/* Option pour changer le statut en ligne */}
+                <button
+                  onClick={() => setShowStatusDropdown((prev) => !prev)}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center justify-between"
+                >
+                  État en ligne
+                  <span className="text-sm text-gray-400">
+                    {userStatus === "online"
+                      ? "En ligne"
+                      : userStatus === "busy"
+                      ? "Occupé"
+                      : "Hors ligne"}
+                  </span>
+                </button>
+                {showStatusDropdown && (
+                  <div className="ml-4 mt-2">
+                    <button
+                      onClick={() => handleStatusChange("online")}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                    >
+                      <span className="text-green-500">●</span> En ligne
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange("busy")}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                    >
+                      <span className="text-yellow-500">●</span> Occupé
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange("offline")}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                    >
+                      <span className="text-gray-400">●</span> Apparaître hors
+                      ligne
+                    </button>
+                  </div>
+                )}
+
+                {/* Accéder au profil utilisateur */}
                 <Link
                   to="/profil"
                   onClick={() => setShowDropdown(false)}
@@ -136,13 +157,8 @@ function Navbar({
                 >
                   Mon profil utilisateur
                 </Link>
-                <Link
-                  to="/login friends"
-                  onClick={() => setShowDropdown(false)}
-                  className="block px-4 py-2 hover:bg-gray-700"
-                >
-                  Amis
-                </Link>
+
+                {/* Déconnexion */}
                 <button
                   onClick={() => {
                     handleLogout();
@@ -155,33 +171,7 @@ function Navbar({
               </div>
             )}
           </div>
-        ) : (
-          <div className="flex space-x-4">
-            <Link
-              to="/connexion"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full transition-all duration-300 hover:shadow-lg"
-            >
-              Connexion
-            </Link>
-            <Link
-              to="/inscription"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full transition-all duration-300 hover:shadow-lg"
-            >
-              Inscription
-            </Link>
-          </div>
         )}
-
-        <select
-          id="langue"
-          value={langue}
-          onChange={handleLangueChange}
-          className="bg-gray-800 text-white border border-yellow-500 rounded-full px-4 py-2 hover:border-yellow-600 transition-all duration-300"
-        >
-          <option value="français">Français</option>
-          <option value="portugais">Portugais</option>
-          <option value="anglais">Anglais</option>
-        </select>
       </div>
     </nav>
   );

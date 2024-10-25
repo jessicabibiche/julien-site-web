@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import sendEmail from "../utils/sendEmail.js";
+import { v2 as cloudinary } from "cloudinary";
 
 // Récupération du profil utilisateur
 const getUserProfile = async (req, res) => {
@@ -56,7 +57,6 @@ const updateUserProfile = async (req, res) => {
     isPhonePublic,
     isFriendsListPublic,
   } = req.body;
-  let avatar;
 
   try {
     const user = await User.findById(userId);
@@ -68,8 +68,11 @@ const updateUserProfile = async (req, res) => {
 
     // Vérifie si un fichier d'avatar a été uploadé
     if (req.file) {
-      avatar = `/uploads/${req.file.filename}`;
-      user.avatar = avatar;
+      // Upload vers Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "avatars",
+      });
+      user.avatar = result.secure_url; // URL de l'avatar téléchargé
     }
 
     // Mettre à jour uniquement les champs fournis

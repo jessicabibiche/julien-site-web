@@ -137,9 +137,18 @@ export const removeFriend = async (friendId) => {
 // Fonction pour rechercher un utilisateur par pseudo et discriminator
 export const searchUser = async (pseudo, discriminator) => {
   const token = localStorage.getItem("token");
-  const response = await axios.get(`${baseUrl}/users/search`, {
-    params: { pseudo, discriminator }, // Vérifie que ces paramètres sont bien envoyés
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.data;
+  if (!token) {
+    throw new Error("Pas de token JWT trouvé. Vous devez être connecté.");
+  }
+
+  try {
+    const response = await axios.get(`${baseUrl}/users/search`, {
+      params: { pseudo, discriminator },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la recherche de l'utilisateur :", error);
+    throw error;
+  }
 };

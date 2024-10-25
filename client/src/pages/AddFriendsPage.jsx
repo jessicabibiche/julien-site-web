@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { getAllUsers, addFriend } from "../services/user.services";
+import { io } from "socket.io-client";
+
+const socket = io(import.meta.env.VITE_API_URL.replace("/api/v1", ""));
 
 const AddFriendsPage = () => {
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
+  const [friendsStatus, setFriendsStatus] = useState({});
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -15,7 +19,20 @@ const AddFriendsPage = () => {
       }
     };
     fetchUsers();
+    // Écoute les mises à jour du statut des amis
+    socket.on("userStatusUpdate", (data) => {
+      setFriendsStatus((prevStatus) => ({
+        ...prevStatus,
+        [data.userId]: data.status,
+      }));
+    });
+
+    // Cleanup de la connexion Socket.IO lorsque le composant se démonte
+    return () => {
+      socket.off("userStatusUpdate");
+    };
   }, []);
+
   const handleAddFriend = async (friendId) => {
     try {
       await addFriend(friendId);
@@ -38,6 +55,14 @@ const AddFriendsPage = () => {
         {users.map((user) => (
           <li key={user._id} className="mb-4">
             {user.pseudo}
+            <span
+              style={{
+                color: friendsStatus[user._id] === "online" ? "green" : "gray",
+                marginLeft: "8px",
+              }}
+            >
+              {friendsStatus[user._id] === "online" ? "En ligne" : "Hors ligne"}
+            </span>
             <button
               onClick={() => handleAddFriend(user._id)}
               className="bg-blue-500 text-white p-2 rounded ml-4"
