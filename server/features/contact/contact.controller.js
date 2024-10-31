@@ -1,10 +1,22 @@
 import sendEmail from "../utils/sendEmail.js";
+import { body, validationResult } from "express-validator";
+import rateLimit from "express-rate-limit";
 
+// Limiter la fréquence d'envoi à 5 demandes toutes les 15 minutes
+const contactRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limite chaque IP à 5 requêtes par fenêtre
+  message: "Trop de demandes de contact, veuillez réessayer plus tard.",
+});
+
+// Fonction d'envoi du message de contact
 const sendContactMessage = async (req, res) => {
   const { pseudo, email, message } = req.body;
 
-  if (!pseudo || !email || !message) {
-    return res.status(400).json({ error: "Tous les champs sont obligatoires" });
+  // Vérifier les erreurs de validation
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
 
   try {
@@ -22,4 +34,11 @@ const sendContactMessage = async (req, res) => {
   }
 };
 
-export { sendContactMessage };
+// Validation des entrées utilisateur
+const validateContactInputs = [
+  body("pseudo").notEmpty().withMessage("Pseudo est obligatoire."),
+  body("email").isEmail().withMessage("Veuillez fournir un email valide."),
+  body("message").notEmpty().withMessage("Message est obligatoire."),
+];
+
+export { sendContactMessage, validateContactInputs, contactRateLimiter };

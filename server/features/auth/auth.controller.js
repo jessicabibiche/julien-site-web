@@ -1,9 +1,12 @@
 import { StatusCodes } from "http-status-codes";
 import { createUser, getUser } from "../users/users.service.js";
 import { UnauthenticatedError } from "../../errors/index.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import User from "../users/users.model.js";
 
 // Fonction d'inscription
-const register = async (req, res) => {
+const registerUser = async (req, res) => {
   const { pseudo, email, password } = req.body;
 
   if (!pseudo || !email || !password) {
@@ -13,7 +16,6 @@ const register = async (req, res) => {
   }
 
   try {
-    // Vérifie si l'utilisateur existe déjà
     const existingUser = await getUser({ email });
     if (existingUser) {
       return res
@@ -21,13 +23,19 @@ const register = async (req, res) => {
         .json({ message: "Cet email est déjà utilisé" });
     }
 
-    // Crée un nouvel utilisateur
     const user = await createUser({ pseudo, email, password });
-    const token = user.createAccessToken(); // Génère un token JWT
+    const token = user.createAccessToken();
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 1000,
+      sameSite: "strict",
+    });
 
     res
       .status(StatusCodes.CREATED)
-      .json({ user: { pseudo: user.pseudo, email: user.email }, token });
+      .json({ user: { pseudo: user.pseudo, email: user.email } });
   } catch (error) {
     console.error("Erreur lors de l'inscription:", error);
     res
@@ -37,7 +45,7 @@ const register = async (req, res) => {
 };
 
 // Fonction de connexion
-const login = async (req, res) => {
+const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -54,9 +62,15 @@ const login = async (req, res) => {
 
     const token = user.createAccessToken();
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 1000,
+      sameSite: "strict",
+    });
+
     res.status(StatusCodes.OK).json({
       user: { id: user._id, pseudo: user.pseudo, email: user.email },
-      token,
     });
   } catch (error) {
     console.error("Erreur lors de la connexion:", error);
@@ -66,4 +80,45 @@ const login = async (req, res) => {
   }
 };
 
-export { login, register };
+// Fonction de déconnexion
+const logout = async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.status(StatusCodes.OK).json({ message: "Déconnexion réussie" });
+};
+
+// Fonction de réinitialisation du mot de passe
+const resetPassword = async (req, res) => {
+  const { resetToken } = req.params;
+  const { newPassword } = req.body;
+
+  try {
+    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Utilisateur non trouvé" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    res
+      .status(StatusCodes.OK)
+      .json({ message: "Mot de passe réinitialisé avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la réinitialisation du mot de passe:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Erreur lors de la réinitialisation du mot de passe",
+    });
+  }
+};
+
+export { loginUser, registerUser, logout, resetPassword };

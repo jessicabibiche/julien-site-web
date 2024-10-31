@@ -40,8 +40,8 @@ export const getUserProfile = async () => {
   }
 };
 
-// Fonction pour mettre à jour le profil utilisateur (pseudo, email, bio, avatar)
-export const updateUserProfile = async (updatedProfile) => {
+// Fonction pour mettre à jour le profil utilisateur (pseudo, email, bio)
+export const handleProfileUpdate = async (updatedProfile) => {
   try {
     const response = await axios.put(`${baseUrl}/profile`, updatedProfile, {
       headers: {

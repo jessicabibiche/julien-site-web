@@ -6,25 +6,21 @@ nav {
 }
 
 a {
-  position: relative; /* Position relative pour les effets */
-  display: inline-block; /* Pour que l'effet de fond fonctionne */
+  position: relative;
+  display: inline-block;
 }
 
 a:hover {
-  color: transparent; /* Cache le texte normal */
-  background: linear-gradient(
-    45deg,
-    #ffd700,
-    #b62cd5
-  ); /* Dégradé de couleur pour l'effet */
-  -webkit-background-clip: text; /* Clip de fond pour le texte */
-  background-clip: text; /* Clip de fond pour le texte */
+  color: transparent;
+  background: linear-gradient(45deg, #ffd700, #b62cd5);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 a:hover::after {
-  transform: scaleX(1); /* Affiche le soulignement au survol */
+  transform: scaleX(1);
 }
-/* Neon effect styles */
+
 .neon-border-violet {
   box-shadow: 0px 0px 20px 5px rgba(138, 43, 226, 0.8);
 }
@@ -52,7 +48,18 @@ a:hover::after {
 .neon-border-rose {
   box-shadow: 0px 0px 20px 5px rgba(255, 20, 147, 0.8);
 }
-/* styles.css ou index.css */
+
 .font-gamer {
   font-family: "Orbitron", sans-serif;
+}
+/* Personnaliser les variables CSS pour Emoji Picker en mode sombre */
+.EmojiPickerReact.epr-dark-theme {
+  --epr-emoji-size: 28px; /* Taille des emojis */
+  --epr-emoji-gap: 6px; /* Espace entre les emojis */
+  --epr-hover-bg-color: #5e5d5d; /* Couleur d’arrière-plan survolée */
+  --epr-bg-color: #1e293b; /* Couleur d’arrière-plan du picker */
+  --epr-category-label-bg-color: #1e293b; /* Fond du label de catégorie */
+  --epr-text-color: #ffffff; /* Couleur du texte dans le picker */
+  --epr-search-input-bg-color: #0f172a; /* Couleur de fond de l'entrée de recherche */
+  --epr-search-input-text-color: #ffffff; /* Couleur du texte dans la barre de recherche */
 }

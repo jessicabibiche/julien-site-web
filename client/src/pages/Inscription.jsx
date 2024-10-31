@@ -12,12 +12,22 @@ const Inscription = ({ setIsAuthenticated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await register(pseudo, email, password); // Appelle le service d'inscription
-      localStorage.setItem("token", data.token); // Stocke le token JWT
+      // Appelle le service d'inscription avec le support des cookies
+      await axios.post(
+        "/api/v1/auth/register",
+        { pseudo, email, password },
+        {
+          withCredentials: true,
+        }
+      );
+
+      // Met à jour l'état d'authentification
       setIsAuthenticated(true);
-      navigate("/"); // Redirige après l'inscription
+
+      // Redirige après l'inscription réussie
+      navigate("/");
     } catch (err) {
-      setError(err.message); // Gère les erreurs
+      setError(err.response?.data?.message || "Erreur lors de l'inscription");
     }
   };
 

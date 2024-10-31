@@ -1,11 +1,16 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
+import ErrorBoundary from "./ErrorBoundary";
+import { UserStatusProvider } from "./context/UserStatusContext.jsx";
 import "./index.css";
-import "./i18n/i18n.js";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <UserStatusProvider>
+        <App />
+      </UserStatusProvider>
+    </ErrorBoundary>
   </StrictMode>
 );

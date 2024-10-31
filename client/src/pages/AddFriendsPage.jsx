@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getAllUsers, addFriend } from "../services/user.services";
-import { io } from "socket.io-client";
-
-const socket = io(import.meta.env.VITE_API_URL.replace("/api/v1", ""));
+import socket from "../services/socketClient.js";
 
 const AddFriendsPage = () => {
   const [users, setUsers] = useState([]);

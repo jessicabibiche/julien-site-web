@@ -54,13 +54,11 @@ const UserSchema = new Schema({
     type: String,
     match: [/^\d{10}$/, "Veuillez fournir un numéro de téléphone valide"],
   },
-
   status: {
     type: String,
     enum: ["online", "offline"],
     default: "offline",
   },
-
   // Champs pour la visibilité des informations
   isEmailPublic: {
     type: Boolean,
@@ -120,7 +118,16 @@ UserSchema.methods.createAccessToken = function () {
   return jwt.sign(
     { userId: this._id, pseudo: this.pseudo },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_LIFETIME }
+    { expiresIn: process.env.JWT_LIFETIME } // Exemple : "15m" pour 15 minutes
+  );
+};
+
+// Méthode pour générer un Refresh Token
+UserSchema.methods.createRefreshToken = function () {
+  return jwt.sign(
+    { userId: this._id },
+    process.env.JWT_REFRESH_SECRET, // Clé secrète différente pour le refresh token
+    { expiresIn: "7d" } // Durée de vie plus longue que l'access token
   );
 };
 

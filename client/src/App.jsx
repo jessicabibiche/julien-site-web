@@ -18,7 +18,8 @@ import Profil from "./pages/Profil";
 import Donations from "./pages/Donations";
 import AddFriendsPage from "./pages/AddFriendsPage.jsx";
 import SearchFriends from "./pages/SearchFriends";
-
+import Jeux from "./pages/Jeux";
+import EditProfile from "./pages/EditProfile";
 // Route privée qui redirige vers /connexion si non authentifié
 const PrivateRoute = ({ children, isAuthenticated }) => {
   return isAuthenticated ? children : <Navigate to="/connexion" />;
@@ -73,7 +74,9 @@ function App() {
             <Route path="/videogallery" element={<VideoGallery />} />
             <Route path="/videos" element={<Videos />} />
             <Route path="/apropos" element={<APropos />} />
+            <Route path="/jeux" element={<Jeux />} />
             <Route path="/contact" element={<Contact />} />
+
             <Route
               path="/profil"
               element={
@@ -86,6 +89,7 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/add-friend" element={<AddFriendsPage />} />
             <Route path="/donations" element={<Donations />} />
             <Route path="/search-friends" element={<SearchFriends />} />

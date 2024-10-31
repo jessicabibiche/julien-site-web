@@ -19,12 +19,13 @@ import { rateLimit } from "express-rate-limit";
 import YAML from "yamljs";
 import swaggerUI from "swagger-ui-express";
 import avatarRoutes from "./features/avatars/avatar.routes.js";
-
+import cookieParser from "cookie-parser";
+import editProfileRoutes from "./features/editProfile/editProfile.route.js";
 // Récupération des chemins corrects dans ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml")); // Assure-toi que ce chemin est correct
+const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml"));
 
 const app = express();
 
@@ -46,14 +47,20 @@ app.use(
   })
 );
 app.use(mongoSanitize());
-app.use(cors({}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("dist"));
 
 // Swagger documentation
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
-// Route pour servir les avatars stockés dans le répertoire client/public/avatars
 app.use("/api/v1/avatars", avatarRoutes);
 
 // Routes
@@ -67,6 +74,7 @@ app.use("/api/v1/youtube", youtubeRoutes);
 app.use("/api/v1/contact", contactRoutes);
 app.use("/api/v1/donations", donationRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/edit-profile", editProfileRoutes);
 
 // Middleware pour gérer les routes non trouvées et les erreurs
 app.use(notFound);

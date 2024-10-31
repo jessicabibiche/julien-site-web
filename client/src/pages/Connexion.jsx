@@ -12,12 +12,22 @@ const Connexion = ({ setIsAuthenticated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await login(email, password); // Appelle le service d'authentification
-      localStorage.setItem("token", data.token); // Stocke le token JWT
+      // Appelle le service d'authentification avec le support des cookies
+      await axios.post(
+        "/api/v1/auth/login",
+        { email, password },
+        {
+          withCredentials: true, // Cela permet à Axios d'inclure les cookies dans la requête
+        }
+      );
+
+      // Met à jour l'état d'authentification
       setIsAuthenticated(true);
-      navigate("/"); // Redirige après la connexion
+
+      // Redirige après la connexion réussie
+      navigate("/");
     } catch (err) {
-      setError(err.message); // Gère les erreurs
+      setError(err.response?.data?.message || "Erreur lors de la connexion"); // Gère les erreurs
     }
   };
 

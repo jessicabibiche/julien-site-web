@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { searchUser, addFriend } from "../services/user.services";
-import { io } from "socket.io-client";
-
-const socket = io(import.meta.env.VITE_API_URL.replace("/api/v1", ""));
+import socket from "../services/socketClient.js";
 
 const AddFriend = () => {
   const [message, setMessage] = useState("");
@@ -14,11 +12,13 @@ const AddFriend = () => {
 
   // Écoute les mises à jour du statut d'amis via Socket.IO
   useEffect(() => {
-    socket.on("userStatusUpdate", (data) => {
-      if (userFound && userFound._id === data.userId) {
-        setFriendStatus(data.status);
-      }
-    });
+    if (userFound) {
+      socket.on("userStatusUpdate", (data) => {
+        if (userFound && userFound._id === data.userId) {
+          setFriendStatus(data.status);
+        }
+      });
+    }
 
     // Nettoyage de la connexion Socket.IO lorsqu'on quitte le composant
     return () => {

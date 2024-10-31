@@ -9,8 +9,13 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
+security:
+  - bearerAuth: []
 tags:
   - name: auth
+  - name: profile
+  - name: edit-profile
+
 paths:
   /auth/register:
     post:
@@ -23,42 +28,21 @@ paths:
           application/json:
             schema:
               type: object
-              required:
-                - name
-                - email
-                - password
               properties:
-                name:
+                pseudo:
                   type: string
                 email:
                   type: string
                 password:
                   type: string
               example:
-                name: jess
-                email: john@gmail.com
-                password: secret
+                pseudo: jess
+                email: jess@example.com
+                password: Password123
       responses:
         "201":
           description: User registered successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                      email:
-                        type: string
-                  token:
-                    type: string
-        "400":
-          description: Bad request - invalid or missing fields
+
   /auth/login:
     post:
       tags:
@@ -70,48 +54,80 @@ paths:
           application/json:
             schema:
               type: object
-              required:
-                - email
-                - password
               properties:
                 email:
                   type: string
                 password:
                   type: string
               example:
-                email: john@gmail.com
-                password: secret
+                email: jess@example.com
+                password: Password123
       responses:
         "200":
           description: User logged in successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                      email:
-                        type: string
-                  token:
-                    type: string
-        "400":
-          description: Invalid credentials
-components:
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        email:
-          type: string
-        password:
-          type: string
+
+  /edit-profile:
+    put:
+      tags:
+        - edit-profile
+      summary: Update user profile information
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pseudo:
+                  type: string
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                address:
+                  type: string
+                phone:
+                  type: string
+              example:
+                pseudo: newPseudo
+                firstname: John
+                lastname: Doe
+                address: 123 Main St
+                phone: "0123456789"
+      responses:
+        "200":
+          description: Profile updated successfully
+
+  /profile/bio:
+    get:
+      tags:
+        - profile
+      summary: Get user profile bio
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profile bio fetched successfully
+
+    put:
+      tags:
+        - profile
+      summary: Update user profile bio
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bio:
+                  type: string
+              example:
+                bio: This is my updated bio!
+      responses:
+        "200":
+          description: Profile bio updated successfully

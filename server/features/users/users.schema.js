@@ -24,3 +24,18 @@ export const LoginUserSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),
   password: z.string(),
 });
+export const ResetPasswordSchema = z.object({
+  newPassword: z
+    .string()
+    .min(6, { message: "Le mot de passe doit comporter au moins 6 caractères" })
+    .regex(/[A-Z]/, {
+      message: "Le mot de passe doit comporter au moins une lettre majuscule",
+    })
+    .regex(/\d/, {
+      message: "Le mot de passe doit comporter au moins un chiffre",
+    })
+    .regex(/[@$!%*?&#]/, {
+      message:
+        "Le mot de passe doit comporter au moins un caractère spécial (@, $, !, %, *, ?, &, #, .)",
+    }),
+});
