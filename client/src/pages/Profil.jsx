@@ -35,7 +35,7 @@ moment.locale("fr", {
 });
 
 const defaultAvatar =
-  "https://res.cloudinary.com/dfikgdrpn/image/upload/v1/avatars/avatardefault.png"; // Avatar par défaut (lien Cloudinary)
+  "https://res.cloudinary.com/dfikgdrpn/image/upload/v1/avatars/avatardefault.png";
 
 const Profil = ({
   setIsAuthenticated,
@@ -323,10 +323,7 @@ const Profil = ({
           ></span>
         </div>
         <div className="ml-6">
-          <h2 className="text-3xl font-bold text-white">
-            {firstname} {lastname}
-          </h2>
-          <p className="text-xl text-gray-400">@{pseudo}</p>
+          <h2 className="text-3xl font-bold text-white">{pseudo}</h2>
           <p className="text-sm text-gray-500">{getLastOnlineText()}</p>
         </div>
       </div>

@@ -1,6 +1,14 @@
 import express from "express";
-import { addFriend, removeFriend, searchUser } from "./users.controller.js"; // Assure-toi d'avoir ces contrôleurs
-import authenticateUser from "../../middlewares/auth.middleware.js"; // Middleware d'authentification
+import {
+  addFriend,
+  removeFriend,
+  searchUser,
+  selectAvatar,
+  updateAvatar,
+  uploadAvatar,
+} from "./users.controller.js";
+import authenticateUser from "../../middlewares/auth.middleware.js";
+import upload from "../../middlewares/upload.middleware.js";
 
 const router = express.Router();
 
@@ -12,5 +20,19 @@ router.delete("/remove-friend/:friendId", authenticateUser, removeFriend);
 
 // Route pour rechercher un utilisateur par pseudo et discriminator
 router.get("/search", authenticateUser, searchUser);
+
+// Route pour mettre à jour un avatar personnalisé
+router.put("/update-avatar", authenticateUser, updateAvatar);
+
+// Route pour sélectionner un avatar prédéfini
+router.put("/select-avatar", authenticateUser, selectAvatar);
+
+// Route pour uploader un avatar depuis un téléphone/PC
+router.post(
+  "/upload-avatar",
+  authenticateUser,
+  upload.single("avatars"),
+  uploadAvatar
+);
 
 export default router;

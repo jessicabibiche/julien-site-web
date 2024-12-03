@@ -15,7 +15,7 @@
     "@coinbase/coinbase-sdk": "^0.9.1",
     "@paypal/checkout-server-sdk": "^1.0.3",
     "@paypal/paypal-server-sdk": "^0.6.0",
-    "axios": "^1.7.7",
+    "axios": "^1.7.8",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",

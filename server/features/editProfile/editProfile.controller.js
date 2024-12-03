@@ -54,7 +54,7 @@ export const requestPasswordReset = async (req, res) => {
 
 // Fonction pour réinitialiser le mot de passe avec le lien envoyé par email
 export const resetPassword = async (req, res) => {
-  const { resetToken } = req.params; // Token reçu par URL
+  const { resetToken } = req.params;
   const { newPassword } = req.body;
 
   try {
@@ -69,14 +69,20 @@ export const resetPassword = async (req, res) => {
         .json({ message: "Utilisateur non trouvé" });
     }
 
-    // Mettre à jour le mot de passe
-    user.password = await bcrypt.hash(newPassword, 10);
+    // Hachage du nouveau mot de passe
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    // Mise à jour et sauvegarde du mot de passe haché
+    user.password = hashedPassword;
     await user.save();
 
     return res
       .status(StatusCodes.OK)
       .json({ message: "Mot de passe réinitialisé avec succès" });
   } catch (error) {
+    console.error(
+      "Erreur lors de la réinitialisation du mot de passe :",
+      error
+    );
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ message: "Lien de réinitialisation invalide ou expiré" });
@@ -121,7 +127,7 @@ export const updateUserPassword = async (req, res) => {
 // Fonction pour mettre à jour les informations sensibles
 export const updateUserSensitiveInfo = async (req, res) => {
   const { userId } = req.user;
-  const { pseudo, firstname, lastname, address, phone } = req.body;
+  const { pseudo, firstname, lastname, address, phone, newPassword } = req.body;
 
   try {
     const user = await User.findById(userId);
@@ -131,13 +137,25 @@ export const updateUserSensitiveInfo = async (req, res) => {
         .json({ message: "Utilisateur non trouvé" });
     }
 
+    console.log("Avant modification :", user);
+
     if (pseudo) user.pseudo = pseudo;
     if (firstname) user.firstname = firstname;
     if (lastname) user.lastname = lastname;
     if (address) user.address = address;
     if (phone) user.phone = phone;
 
+    // Mettre à jour le mot de passe uniquement si `newPassword` est fourni
+    if (newPassword) {
+      user.password = await bcrypt.hash(newPassword, 10);
+      console.log("Mot de passe mis à jour");
+    } else {
+      console.log("Aucun changement de mot de passe");
+    }
+
     await user.save();
+
+    console.log("Après modification :", user);
 
     return res.status(StatusCodes.OK).json({
       message: "Informations personnelles mises à jour avec succès",
@@ -147,5 +165,27 @@ export const updateUserSensitiveInfo = async (req, res) => {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Erreur lors de la mise à jour des informations" });
+  }
+};
+
+// Fonction pour obtenir le profil de l'utilisateur connecté
+export const getUserProfile = async (req, res) => {
+  const { userId } = req.user;
+
+  try {
+    const user = await User.findById(userId).select(
+      "pseudo firstname lastname address phone email avatar status"
+    );
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Utilisateur non trouvé" });
+    }
+    return res.status(StatusCodes.OK).json(user);
+  } catch (error) {
+    console.error("Erreur lors de la récupération du profil :", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Erreur lors de la récupération du profil",
+    });
   }
 };

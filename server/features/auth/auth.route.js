@@ -5,6 +5,7 @@ import {
   loginUser,
   resetPassword,
   logout,
+  checkAuth,
 } from "./auth.controller.js"; // Assurez-vous que les noms correspondent
 
 import {
@@ -26,14 +27,7 @@ router.post(
 // Route pour la connexion
 router.post("/login", validate({ bodySchema: LoginUserSchema }), loginUser);
 
-// Route pour la réinitialisation du mot de passe
-router.post(
-  "/reset-password/:resetToken",
-  validate({ bodySchema: ResetPasswordSchema }),
-  resetPassword
-);
-
 // Route pour la déconnexion
 router.post("/logout", authenticateUser, logout);
-
+router.get("/check-auth", authenticateUser, checkAuth);
 export default router;

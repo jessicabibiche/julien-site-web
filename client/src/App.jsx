@@ -20,81 +20,120 @@ import AddFriendsPage from "./pages/AddFriendsPage.jsx";
 import SearchFriends from "./pages/SearchFriends";
 import Jeux from "./pages/Jeux";
 import EditProfile from "./pages/EditProfile";
-// Route privée qui redirige vers /connexion si non authentifié
+import { getUserProfile } from "./services/user.services";
+import { checkAuth } from "./services/auth.services";
+import defaultAvatar from "/avatars/avatardefault.png";
+
+// Route privée pour protéger certaines pages
 const PrivateRoute = ({ children, isAuthenticated }) => {
   return isAuthenticated ? children : <Navigate to="/connexion" />;
 };
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userAvatar, setUserAvatar] = useState("");
+  const [userAvatar, setUserAvatar] = useState(defaultAvatar);
   const [userPseudo, setUserPseudo] = useState("");
+  const [neonColor, setNeonColor] = useState("#FDD403");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken = JSON.parse(atob(token.split(".")[1]));
-      const expirationTime = decodedToken.exp * 1000;
-      if (Date.now() >= expirationTime) {
-        localStorage.removeItem("token");
+    const fetchUserData = async () => {
+      try {
+        console.log("Vérification de l'authentification en cours...");
+        const authResponse = await checkAuth();
+
+        if (authResponse.authenticated) {
+          console.log("Utilisateur authentifié :", authResponse.user);
+          const userProfile = await getUserProfile();
+
+          setIsAuthenticated(true);
+          setUserAvatar(userProfile.avatar || defaultAvatar);
+          setUserPseudo(userProfile.pseudo || "Utilisateur");
+          setNeonColor(userProfile.neonColor || "#FDD403");
+
+          // Sauvegarde des données dans le localStorage
+          localStorage.setItem(
+            "userAvatar",
+            userProfile.avatar || defaultAvatar
+          );
+          localStorage.setItem(
+            "userPseudo",
+            userProfile.pseudo || "Utilisateur"
+          );
+          localStorage.setItem("neonColor", userProfile.neonColor || "#FDD403");
+        } else {
+          console.warn("Utilisateur non authentifié");
+          throw new Error("Non authentifié");
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des informations utilisateur :",
+          error
+        );
         setIsAuthenticated(false);
-      } else {
-        setIsAuthenticated(true);
-        // Charger l'avatar et le nom de l'utilisateur
-        setUserAvatar(localStorage.getItem("avatar") || ""); // Charger à partir du localStorage (optionnel)
-        setUserPseudo(localStorage.getItem("userPseudo") || "Utilisateur"); // Charger à partir du localStorage (optionnel)
+        localStorage.clear(); // Nettoyer les anciennes données
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    fetchUserData();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-black">
+        <p className="text-white text-xl">Chargement...</p>
+      </div>
+    );
+  }
 
   return (
     <Router>
-      <div
-        className="min-h-screen bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/images/background.jpg')" }}
-      >
-        <Navbar
-          isAuthenticated={isAuthenticated}
-          setIsAuthenticated={setIsAuthenticated}
-          userAvatar={userAvatar}
-          userPseudo={userPseudo}
-        />
-        <div className="bg-black bg-opacity-60 min-h-screen">
-          <Routes>
-            <Route path="/" element={<Accueil />} />
-            <Route path="/support" element={<Support />} />
-            <Route
-              path="/connexion"
-              element={<Connexion setIsAuthenticated={setIsAuthenticated} />}
-            />
-            <Route
-              path="/inscription"
-              element={<Inscription setIsAuthenticated={setIsAuthenticated} />}
-            />
-            <Route path="/videogallery" element={<VideoGallery />} />
-            <Route path="/videos" element={<Videos />} />
-            <Route path="/apropos" element={<APropos />} />
-            <Route path="/jeux" element={<Jeux />} />
-            <Route path="/contact" element={<Contact />} />
-
-            <Route
-              path="/profil"
-              element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Profil
-                    setIsAuthenticated={setIsAuthenticated}
-                    setUserAvatar={setUserAvatar}
-                    setUserPseudo={setUserPseudo}
-                  />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/edit-profile" element={<EditProfile />} />
-            <Route path="/add-friend" element={<AddFriendsPage />} />
-            <Route path="/donations" element={<Donations />} />
-            <Route path="/search-friends" element={<SearchFriends />} />
-          </Routes>
-        </div>
+      <Navbar
+        isAuthenticated={isAuthenticated}
+        setIsAuthenticated={setIsAuthenticated}
+        userAvatar={userAvatar}
+        userPseudo={userPseudo}
+        neonColor={neonColor}
+      />
+      <div className="bg-black bg-opacity-60 min-h-screen">
+        <Routes>
+          <Route path="/" element={<Accueil />} />
+          <Route path="/support" element={<Support />} />
+          <Route
+            path="/connexion"
+            element={<Connexion setIsAuthenticated={setIsAuthenticated} />}
+          />
+          <Route
+            path="/inscription"
+            element={<Inscription setIsAuthenticated={setIsAuthenticated} />}
+          />
+          <Route path="/videogallery" element={<VideoGallery />} />
+          <Route path="/videos" element={<Videos />} />
+          <Route path="/apropos" element={<APropos />} />
+          <Route path="/jeux" element={<Jeux />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route
+            path="/profil"
+            element={
+              <PrivateRoute isAuthenticated={isAuthenticated}>
+                <Profil />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/edit-profile"
+            element={
+              <PrivateRoute isAuthenticated={isAuthenticated}>
+                <EditProfile />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/add-friend" element={<AddFriendsPage />} />
+          <Route path="/donations" element={<Donations />} />
+          <Route path="/search-friends" element={<SearchFriends />} />
+        </Routes>
       </div>
     </Router>
   );

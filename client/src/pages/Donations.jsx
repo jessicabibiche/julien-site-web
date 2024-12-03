@@ -124,7 +124,7 @@ const Donations = () => {
 
   const createOrder = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getCookie("token");
 
       if (!token) {
         throw new Error("Vous devez être connecté pour créer une commande.");
@@ -138,6 +138,7 @@ const Donations = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
 
@@ -155,7 +156,7 @@ const Donations = () => {
   };
 
   const onApprove = async (data, actions) => {
-    const token = localStorage.getItem("token");
+    const token = getCookie("token");
 
     try {
       const { data: orderData } = await axios(
@@ -165,6 +166,7 @@ const Donations = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
 

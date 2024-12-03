@@ -8,13 +8,7 @@ function Videos() {
   const CHANNEL_ID = "UCsg7p4fWiwCLULpQw_-RrCg";
 
   // Tableau contenant les images personnalisées
-  const customImages = [
-    "/images/kod1.png",
-    "/images/kod2.png",
-    "/images/kod3.png",
-    "/images/kod4.png",
-    "/images/kod5.png",
-  ];
+  const customImages = ["/images/dragon1.png", "/images/dragon2.png"];
 
   // Fonction pour sélectionner une image aléatoirement
   const getRandomImage = () => {

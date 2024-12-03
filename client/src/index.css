@@ -10,13 +10,6 @@ a {
   display: inline-block;
 }
 
-a:hover {
-  color: transparent;
-  background: linear-gradient(45deg, #ffd700, #b62cd5);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-
 a:hover::after {
   transform: scaleX(1);
 }

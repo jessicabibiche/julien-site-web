@@ -37,6 +37,8 @@ const UserSchema = new Schema({
   },
   avatar: {
     type: String,
+    default:
+      "https://res.cloudinary.com/dfikgdrpn/image/upload/v1730706984/avatardefault_umnmgs.png",
   },
   firstname: {
     type: String,
@@ -103,14 +105,25 @@ const UserSchema = new Schema({
 });
 
 // Middleware de hachage du mot de passe avant la sauvegarde
-UserSchema.pre("save", async function () {
+UserSchema.pre("save", async function (next) {
+  // Ne hashez le mot de passe que s'il n'est pas déjà haché
+  if (!this.isModified("password") || this.password.startsWith("$2b$")) {
+    return next();
+  }
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-// Méthode pour comparer les mots de passe
 UserSchema.methods.comparePasswords = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+  console.log("Mot de passe candidat en clair :", candidatePassword);
+  console.log("Mot de passe en base (haché) :", this.password);
+
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  console.log("Résultat de la comparaison dans le modèle User :", isMatch);
+
+  return isMatch;
 };
 
 // Méthode pour générer un token JWT

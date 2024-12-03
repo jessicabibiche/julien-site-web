@@ -28,9 +28,9 @@ const registerUser = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "development",
       maxAge: 60 * 60 * 1000,
-      sameSite: "strict",
+      sameSite: "lax",
     });
 
     res
@@ -48,35 +48,43 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: "Veuillez fournir un email et un mot de passe" });
-  }
-
   try {
-    const user = await getUser({ email });
-    if (!user || !(await user.comparePasswords(password))) {
-      throw new UnauthenticatedError("Identifiants invalides");
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Identifiants invalides" });
     }
 
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Identifiants invalides" });
+    }
+
+    // Créer un token JWT
     const token = user.createAccessToken();
+
+    // Mettre à jour le statut de l'utilisateur à 'online'
+    user.status = "online";
+    await user.save();
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 1000,
-      sameSite: "strict",
     });
 
-    res.status(StatusCodes.OK).json({
-      user: { id: user._id, pseudo: user.pseudo, email: user.email },
+    return res.status(200).json({
+      user: {
+        id: user._id,
+        pseudo: user.pseudo,
+        email: user.email,
+        status: user.status,
+      },
     });
   } catch (error) {
-    console.error("Erreur lors de la connexion:", error);
-    res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: "Identifiants invalides" });
+    console.error("Erreur lors de la connexion :", error);
+    return res
+      .status(500)
+      .json({ message: "Erreur serveur lors de la connexion" });
   }
 };
 
@@ -121,4 +129,17 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser, logout, resetPassword };
+const checkAuth = (req, res) => {
+  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Pas de token fourni !" });
+  }
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({ authenticated: true, user: decodedToken });
+  } catch (error) {
+    res.status(200).json({ authenticated: false });
+  }
+};
+
+export { loginUser, registerUser, logout, resetPassword, checkAuth };

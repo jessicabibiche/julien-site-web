@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
 
 const authenticateUser = (req, res, next) => {
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  const token =
+    req.headers.authorization?.split(" ")[1] || // Vérifie l'en-tête Authorization
+    req.cookies.token; // Vérifie les cookies
 
   if (!token) {
     return res.status(401).json({ message: "Pas de token fourni !" });

@@ -1,34 +1,40 @@
-import React, { useContext, useRef, useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FaGamepad } from "react-icons/fa";
+import React, { useState, useRef, useContext, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { FaGamepad, FaGlobe } from "react-icons/fa";
+import { FiSearch } from "react-icons/fi";
 import defaultAvatar from "/avatars/avatardefault.png";
 import { UserStatusContext } from "../context/UserStatusContext.jsx";
-import axios from "axios";
+import { logout, checkAuth } from "../services/auth.services.js";
+import { searchUser, addFriend } from "../services/user.services.js";
 import socket from "../services/socketClient.js";
 
 function Navbar({
   isAuthenticated,
   setIsAuthenticated,
   userAvatar,
+  setUserAvatar,
   userPseudo,
+  setUserPseudo,
+  neonColor,
+  setNeonColor,
 }) {
-  const [langue, setLangue] = useState("français");
+  const [langue, setLangue] = useState(
+    localStorage.getItem("langue") || "Français"
+  );
   const { status, setStatus } = useContext(UserStatusContext);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isAdding, setIsAdding] = useState({}); // Tracks adding state for each user
   const dropdownRef = useRef(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const savedLangue = localStorage.getItem("langue");
-    if (savedLangue) {
-      setLangue(savedLangue);
-    }
-
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
-        setShowStatusDropdown(false);
+        setShowLanguageDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -37,150 +43,435 @@ function Navbar({
     };
   }, []);
 
-  // Fonction de déconnexion
   const handleLogout = async () => {
     try {
-      // Appel à l'API de déconnexion
-      await axios.post("/api/v1/auth/logout", null, {
-        withCredentials: true, // Envoie les cookies
-      });
-      // Mise à jour de l'état d'authentification
+      await logout();
+      localStorage.clear();
       setIsAuthenticated(false);
-      alert("Vous êtes déconnecté");
-      // Redirection vers la page d'accueil
-      navigate("/");
+      setUserAvatar(defaultAvatar);
+      setUserPseudo("");
+      setNeonColor("#FDD403");
+      socket.emit("userOffline");
+      window.location.href = "/connexion";
     } catch (error) {
-      console.error("Erreur lors de la déconnexion:", error);
-      alert("Erreur lors de la déconnexion. Veuillez réessayer.");
+      console.error("Erreur lors de la déconnexion :", error);
     }
   };
 
   const handleStatusChange = (newStatus) => {
-    setStatus(newStatus); // Mise à jour du statut dans le contexte
-    setShowStatusDropdown(false);
+    setStatus(newStatus);
+    socket.emit("statusUpdate", {
+      userId: localStorage.getItem("userId"),
+      status: newStatus,
+    });
   };
+
+  const handleSearch = async (query) => {
+    try {
+      if (!query.trim()) {
+        setSearchResults([]);
+        return;
+      }
+      const results = await searchUser(query.trim());
+      setSearchResults(results);
+    } catch (error) {
+      console.error("Erreur lors de la recherche :", error);
+      setSearchResults([]);
+    }
+  };
+
+  const handleAddFriend = async (friendId) => {
+    try {
+      setIsAdding((prev) => ({ ...prev, [friendId]: true }));
+      await addFriend(friendId);
+      setIsAdding((prev) => ({ ...prev, [friendId]: false }));
+      alert("Ami ajouté avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de l'ajout d'ami :", error);
+      setIsAdding((prev) => ({ ...prev, [friendId]: false }));
+    }
+  };
+
+  const handleSearchInputChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    handleSearch(query);
+  };
+
   return (
-    <nav className="relative bg-black p-4 shadow-lg flex justify-between items-center rounded-lg">
-      <div className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-500">
-        KOD_ELDRAGON
+    <nav className="relative bg-black p-4 shadow-lg flex justify-between items-center">
+      {/* Logo */}
+      <div
+        className="text-5xl font-extrabold text-transparent bg-clip-text"
+        style={{
+          fontFamily: "'Noto Serif JP', serif",
+          letterSpacing: "-4px",
+          backgroundImage: `linear-gradient(90deg, #FFD700, #FFFFFF, #FFD700)`,
+          filter: `drop-shadow(0 0 5px rgba(255, 215, 0, 0.8))`,
+        }}
+      >
+        {Array.from("KOD_ElDragon").map((letter, index) => (
+          <span
+            key={index}
+            className="inline-block subtle-glow-letter grow-shrink-effect"
+            style={{
+              animationDelay: `${index * 0.1}s`,
+            }}
+          >
+            {letter}
+          </span>
+        ))}
       </div>
 
-      <div className="flex items-center space-x-6">
-        {/* Liens de navigation */}
-        {[
-          { label: "Accueil", path: "/" },
-          { label: "Vidéos", path: "/videos" },
-          { label: "À Propos", path: "/apropos" },
-          { label: "Jeux", path: "/jeux" },
-          { label: "Contact", path: "/contact" },
-        ].map((item, index) => (
-          <Link
-            key={index}
-            to={item.path}
-            className="text-lg text-white font-semibold px-4 py-2 transition-all duration-300 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-yellow-400 hover:to-blue-500"
-          >
-            {item.label}
-          </Link>
-        ))}
-
-        {/* Bouton de soutien */}
+      {/* Navigation Links */}
+      <div className="hidden md:flex space-x-6 text-lg">
         <Link
-          to="/donations"
-          className="text-lg font-semibold px-4 py-2 transition-all duration-300 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-full hover:shadow-lg flex items-center space-x-2"
+          to="/"
+          className="text-white hover:text-yellow-400 transition-all tracking-wider"
         >
-          <FaGamepad className="text-white" /> <span>Soutenir</span>
+          Accueil
         </Link>
-
-        {/* Menu Avatar */}
-        {isAuthenticated && (
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setShowDropdown((prev) => !prev)}
-              className="flex items-center space-x-2 px-4 py-2"
-            >
-              <div className="relative w-10 h-10 rounded-full border-4 neon-border-violet">
-                <img
-                  src={userAvatar || defaultAvatar}
-                  alt="Avatar"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <span
-                  className={`absolute bottom-0 top-6 left-6 right-0 w-3 h-3 rounded-full ${
-                    status === "online"
-                      ? "bg-green-500"
-                      : status === "busy"
-                      ? "bg-orange-500"
-                      : "bg-gray-400"
-                  }`}
-                ></span>
-              </div>
-            </button>
-
-            {showDropdown && (
-              <div className="absolute right-0 mt-2 w-56 bg-gray-800 text-white rounded-lg shadow-lg py-2 z-20">
-                <button
-                  onClick={() => setShowStatusDropdown((prev) => !prev)}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center justify-between"
+        <Link
+          to="/videos"
+          className="text-white hover:text-yellow-400 transition-all tracking-wider"
+        >
+          Vidéos
+        </Link>
+        <Link
+          to="/apropos"
+          className="text-white hover:text-yellow-400 transition-all tracking-wider"
+        >
+          À Propos
+        </Link>
+        <Link
+          to="/jeux"
+          className="text-white hover:text-yellow-400 transition-all tracking-wider"
+        >
+          Jeux
+        </Link>
+        <Link
+          to="/contact"
+          className="text-white hover:text-yellow-400 transition-all tracking-wider"
+        >
+          Contact
+        </Link>
+      </div>
+      {/* Menu Burger for Mobile */}
+      <div className="md:hidden relative">
+        <button
+          onClick={() => setShowDropdown((prev) => !prev)}
+          className="text-yellow-400 text-2xl focus:outline-none"
+        >
+          ☰
+        </button>
+        {showDropdown && (
+          <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex flex-col items-center justify-center">
+            <div className="w-4/5 bg-gray-900 border border-yellow-500 rounded-lg shadow-lg p-4">
+              <div className="flex flex-col space-y-4 text-center">
+                <Link
+                  to="/"
+                  className="text-yellow-500 hover:text-yellow-400 transition-all tracking-wider text-lg"
+                  onClick={() => setShowDropdown(false)}
                 >
-                  État en ligne
-                  <span className="text-sm text-gray-400">
-                    {status === "online"
-                      ? "En ligne"
-                      : status === "busy"
-                      ? "Occupé"
-                      : "Hors ligne"}
-                  </span>
+                  Accueil
+                </Link>
+                <Link
+                  to="/videos"
+                  className="text-yellow-500 hover:text-yellow-400 transition-all tracking-wider text-lg"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  Vidéos
+                </Link>
+                <Link
+                  to="/apropos"
+                  className="text-yellow-500 hover:text-yellow-400 transition-all tracking-wider text-lg"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  À Propos
+                </Link>
+                <Link
+                  to="/jeux"
+                  className="text-yellow-500 hover:text-yellow-400 transition-all tracking-wider text-lg"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  Jeux
+                </Link>
+                <Link
+                  to="/contact"
+                  className="text-yellow-500 hover:text-yellow-400 transition-all tracking-wider text-lg"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  Contact
+                </Link>
+                <Link
+                  to="/connexion"
+                  className="text-yellow-500 hover:text-yellow-400 transition-all tracking-wider text-lg"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  Connexion
+                </Link>
+                <Link
+                  to="/inscription"
+                  className="text-yellow-500 hover:text-yellow-400 transition-all tracking-wider text-lg"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  Inscription
+                </Link>
+              </div>
+
+              {/* Language Selector in the Burger Menu */}
+              <div className="flex justify-center items-center mt-4">
+                <button
+                  onClick={() => setShowLanguageDropdown((prev) => !prev)}
+                  className="text-yellow-500 hover:text-white text-lg transition-all"
+                >
+                  <FaGlobe className="w-6 h-6" />
                 </button>
-                {showStatusDropdown && (
-                  <div className="ml-4 mt-2">
-                    <button
-                      onClick={() => handleStatusChange("online")}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                    >
-                      <span className="text-green-500">●</span> En ligne
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange("busy")}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                    >
-                      <span className="text-yellow-500">●</span> Occupé
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange("offline")}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                    >
-                      <span className="text-gray-400">●</span> Hors ligne
-                    </button>
+                {showLanguageDropdown && (
+                  <div className="absolute bg-gray-800 text-white rounded-lg shadow-lg py-2 z-50 mt-2">
+                    {["Français", "Portugais", "Anglais"].map((lang, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleLanguageChange(lang)}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                      >
+                        {lang}
+                      </button>
+                    ))}
                   </div>
                 )}
-
-                <Link
-                  to="/profil"
-                  onClick={() => setShowDropdown(false)}
-                  className="block px-4 py-2 hover:bg-gray-700"
-                >
-                  Mon profil utilisateur
-                </Link>
-
-                <Link
-                  to="/edit-profile"
-                  onClick={() => setShowDropdown(false)}
-                  className="block px-4 py-2 hover:bg-gray-700"
-                >
-                  Modifier le profil
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 hover:bg-red-500"
-                >
-                  Déconnexion
-                </button>
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
+
+      {/* Search Bar */}
+      <div className="relative hidden md:flex items-center">
+        {showSearch && (
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+            placeholder="Rechercher des amis..."
+            className="w-64 transition-all duration-500 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none border border-gray-600 hover:border-yellow-400"
+          />
+        )}
+        <button
+          onClick={() => {
+            setShowSearch(!showSearch);
+            if (searchQuery) handleSearch(searchQuery);
+          }}
+          className="text-white ml-2 hover:text-yellow-400 transition-all"
+        >
+          <FiSearch size={20} />
+        </button>
+        {searchResults.length > 0 && (
+          <div className="absolute top-12 left-0 w-64 bg-gray-800 text-white rounded-lg shadow-lg py-2 z-20">
+            {searchResults.map((user) => (
+              <div
+                key={user._id}
+                className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
+              >
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={user.avatar || defaultAvatar}
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold">{user.pseudo}</p>
+                    <span
+                      className={`inline-block w-3 h-3 rounded-full ${
+                        user.status === "online"
+                          ? "bg-green-500"
+                          : user.status === "busy"
+                          ? "bg-orange-500"
+                          : "bg-gray-500"
+                      }`}
+                    ></span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleAddFriend(user._id)}
+                  className="text-xs text-yellow-500 hover:text-yellow-600 transition-all"
+                  disabled={isAdding[user._id]}
+                >
+                  {isAdding[user._id] ? "Ajout..." : "Ajouter"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Bouton de soutien */}
+      <Link
+        to="/donations"
+        className="hidden md:flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-yellow-500 via-white to-yellow-500 text-black rounded-full font-bold tracking-wider hover:scale-105 hover:rotate-1 transition-transform shadow-lg"
+        style={{ textShadow: "2px 2px 5px white" }}
+      >
+        <FaGamepad className="animate-pulse" /> <span>Soutenir</span>
+      </Link>
+
+      {/* User Avatar or Authentication Buttons */}
+      {!isAuthenticated ? (
+        <div className="hidden md:flex space-x-4">
+          <Link
+            to="/connexion"
+            className="text-lg px-5 py-2 border border-yellow-500 text-yellow-500 rounded-full hover:shadow-[0px_0px_10px_2px] hover:shadow-yellow-500 hover:bg-yellow-200 hover:text-black transition-all transform hover:scale-110"
+            style={{
+              fontFamily: "'Noto Serif JP', serif",
+              backgroundSize: "200%",
+              backgroundPosition: "left center",
+            }}
+          >
+            Connexion
+          </Link>
+          <Link
+            to="/inscription"
+            className="text-lg px-5 py-2 bg-gradient-to-r from-yellow-500 via-white to-yellow-500 text-black rounded-full font-bold hover:animate-pulse transition-all transform hover:scale-110"
+            style={{
+              textShadow: "2px 2px 5px white",
+              fontFamily: "'Noto Serif JP', serif",
+              backgroundSize: "200%",
+              backgroundPosition: "left center",
+            }}
+          >
+            Inscription
+          </Link>
+        </div>
+      ) : (
+        <div className="relative">
+          <button onClick={() => setShowDropdown((prev) => !prev)}>
+            <img
+              src={userAvatar || defaultAvatar}
+              alt="Avatar"
+              className="w-12 h-12 rounded-full border-4"
+              style={{
+                borderColor: neonColor || "#FFF",
+                boxShadow: `0 0 10px ${neonColor}`,
+              }}
+            />
+            <span
+              className={`absolute bottom-0 right-0 w-4 h-4 rounded-full ${
+                status === "online"
+                  ? "bg-green-500"
+                  : status === "busy"
+                  ? "bg-orange-500"
+                  : "bg-gray-500"
+              }`}
+            ></span>
+          </button>
+          {showDropdown && (
+            <div
+              className="absolute right-0 mt-2 w-64 bg-gray-800 text-white py-2 rounded-lg shadow-lg z-20"
+              ref={dropdownRef}
+            >
+              <Link to="/profil" className="block px-4 py-2 hover:bg-gray-700">
+                Mon Profil
+              </Link>
+              <Link
+                to="/edit-profile"
+                className="block px-4 py-2 hover:bg-gray-700"
+              >
+                Modifier Profil
+              </Link>
+              <div className="border-t border-gray-600 my-2"></div>
+              <button
+                className="block px-4 py-2 hover:bg-gray-700"
+                onClick={() => handleStatusChange("online")}
+              >
+                En ligne
+              </button>
+              <button
+                className="block px-4 py-2 hover:bg-gray-700"
+                onClick={() => handleStatusChange("busy")}
+              >
+                Occupé
+              </button>
+              <button
+                className="block px-4 py-2 hover:bg-gray-700"
+                onClick={() => handleStatusChange("offline")}
+              >
+                Hors ligne
+              </button>
+              <div className="border-t border-gray-600 my-2"></div>
+              <button
+                className="block px-4 py-2 hover:bg-red-500"
+                onClick={handleLogout}
+              >
+                Déconnexion
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      {/* Sélecteur de langue */}
+      <div className="relative ml-4">
+        {/* Language Selector only on Desktop */}
+        <button
+          onClick={() => setShowLanguageDropdown((prev) => !prev)}
+          className="text-white text-lg hover:text-yellow-400 transition-all hidden md:inline-flex"
+        >
+          <FaGlobe className="w-5 h-5 mr-5" />
+        </button>
+        {showLanguageDropdown && (
+          <div className="absolute right-0  mt-2 w-32 bg-gray-800 text-white rounded-lg shadow-lg py-2 z-20">
+            {["Français", "Portugais", "Anglais"].map((lang, index) => (
+              <button
+                key={index}
+                onClick={() => handleLanguageChange(lang)}
+                className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* Ligne dorée animée */}
+      <div
+        className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-yellow-500 via-transparent to-yellow-500"
+        style={{
+          backgroundSize: "200%",
+          animation: "gold-line 3s infinite",
+        }}
+      ></div>
+
+      <style>
+        {`
+      .subtle-glow-letter {
+        animation: subtle-grow-shrink 1.5s infinite cubic-bezier(0.7, 0, 0.2, 1);
+      }
+
+      @keyframes subtle-grow-shrink {
+        0% {
+          transform: scale(0.8);
+          text-shadow: 0 0 1px rgba(255, 215, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+        20% {
+          transform: scale(1.1);
+          text-shadow: 0 0 2px rgba(255, 255, 255, 0.8), 0 0 4px rgba(255, 215, 0, 0.8);
+        }
+        100% {
+          transform: scale(0.8);
+          text-shadow: 0 0 1px rgba(255, 215, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+      }
+        @keyframes gold-line {
+        0% {
+          background-position: center;
+        }
+        50% {
+          background-position: right;
+        }
+        100% {
+          background-position: left;
+        }
+      }
+      `}
+      </style>
     </nav>
   );
 }

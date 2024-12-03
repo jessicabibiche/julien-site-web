@@ -4,10 +4,14 @@ import {
   updateUserPassword,
   requestPasswordReset,
   resetPassword,
+  getUserProfile,
 } from "./editProfile.controller.js";
 import authenticateUser from "../../middlewares/auth.middleware.js";
 
 const router = express.Router();
+
+// Route pour obtenir les informations de l'utilisateur connecté
+router.get("/", authenticateUser, getUserProfile);
 
 // Endpoint pour mettre à jour les informations sensibles de l'utilisateur
 router.put("/", authenticateUser, updateUserSensitiveInfo);

@@ -14,7 +14,7 @@ export const RegisterUserSchema = z.object({
     .regex(/\d/, {
       message: "Le mot de passe doit comporter au moins un chiffre",
     })
-    .regex(/[@$!%*?&#]/, {
+    .regex(/[@$!%*?&#.]/, {
       message:
         "Le mot de passe doit comporter au moins un caractère spécial (@, $, !, %, *, ?, &, #, .)",
     }),
