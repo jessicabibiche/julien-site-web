@@ -18,12 +18,6 @@ const Inscription = ({ setIsAuthenticated }) => {
       // Utilise la fonction `register` de `services/auth.services`
       const response = await register(pseudo, email, password);
 
-      // Une fois l'inscription réussie, enregistre le token et mets à jour l'état
-      const token = response.token; // Assure-toi que ton backend renvoie un token après l'inscription
-      if (token) {
-        localStorage.setItem("token", token);
-      }
-
       // L'utilisateur est maintenant authentifié
       setIsAuthenticated(true);
 
@@ -141,6 +135,15 @@ const Inscription = ({ setIsAuthenticated }) => {
           100% {
             background-position: 100% 50%;
           }
+        }
+
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+        display: none !important;
+        }
+
+        input[type="password"]::-webkit-textfield-decoration-container {
+        display: none !important;
         }
       `}</style>
     </div>

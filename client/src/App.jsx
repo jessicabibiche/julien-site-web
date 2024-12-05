@@ -17,7 +17,6 @@ import Contact from "./pages/Contact";
 import Profil from "./pages/Profil";
 import Donations from "./pages/Donations";
 import AddFriendsPage from "./pages/AddFriendsPage.jsx";
-import SearchFriends from "./pages/SearchFriends";
 import Jeux from "./pages/Jeux";
 import EditProfile from "./pages/EditProfile";
 import { getUserProfile } from "./services/user.services";
@@ -40,27 +39,16 @@ function App() {
     const fetchUserData = async () => {
       try {
         console.log("Vérification de l'authentification en cours...");
-        const authResponse = await checkAuth();
+        const authResponse = await checkAuth(); // Vérifie si l'utilisateur est authentifié
 
         if (authResponse.authenticated) {
           console.log("Utilisateur authentifié :", authResponse.user);
-          const userProfile = await getUserProfile();
+          const userProfile = await getUserProfile(); // Récupère le profil utilisateur
 
           setIsAuthenticated(true);
           setUserAvatar(userProfile.avatar || defaultAvatar);
           setUserPseudo(userProfile.pseudo || "Utilisateur");
           setNeonColor(userProfile.neonColor || "#FDD403");
-
-          // Sauvegarde des données dans le localStorage
-          localStorage.setItem(
-            "userAvatar",
-            userProfile.avatar || defaultAvatar
-          );
-          localStorage.setItem(
-            "userPseudo",
-            userProfile.pseudo || "Utilisateur"
-          );
-          localStorage.setItem("neonColor", userProfile.neonColor || "#FDD403");
         } else {
           console.warn("Utilisateur non authentifié");
           throw new Error("Non authentifié");
@@ -71,9 +59,8 @@ function App() {
           error
         );
         setIsAuthenticated(false);
-        localStorage.clear(); // Nettoyer les anciennes données
       } finally {
-        setLoading(false);
+        setLoading(false); // Terminer le chargement
       }
     };
 
@@ -132,7 +119,6 @@ function App() {
           />
           <Route path="/add-friend" element={<AddFriendsPage />} />
           <Route path="/donations" element={<Donations />} />
-          <Route path="/search-friends" element={<SearchFriends />} />
         </Routes>
       </div>
     </Router>

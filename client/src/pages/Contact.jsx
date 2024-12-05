@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { MdClose } from "react-icons/md";
 
 function Contact() {
@@ -11,41 +12,36 @@ function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validation des champs obligatoires
     if (!pseudo || !email || !message) {
       setErrorMessage("Tous les champs sont obligatoires");
       return;
     }
 
     try {
-      const token = localStorage.getItem("token");
+      // Effectuer la requête POST via Axios
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/contact`,
+        { pseudo, email, message },
+        {
+          withCredentials: true, // Inclure les cookies signés
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (!token) {
-        setErrorMessage("Vous devez être connecté pour envoyer un message");
-        return;
-      }
-
-      const response = await fetch("http://localhost:5000/api/v1/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ pseudo, email, message }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi du message");
-      }
-
-      const data = await response.json();
-      setSuccessMessage(data.message);
+      // Gestion de la réponse en cas de succès
+      setSuccessMessage(response.data.message);
       setPseudo("");
       setEmail("");
       setMessage("");
       setErrorMessage("");
     } catch (error) {
       console.error("Erreur lors de l'envoi du message :", error);
-      setErrorMessage("Impossible d'envoyer le message");
+      setErrorMessage(
+        error.response?.data?.message || "Impossible d'envoyer le message"
+      );
     }
   };
 

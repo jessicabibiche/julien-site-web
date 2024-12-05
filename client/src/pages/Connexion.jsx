@@ -12,16 +12,15 @@ const Connexion = ({ setIsAuthenticated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await login(email, password);
-      const token = response.token; // Vérifie que le token existe ici
-      console.log("Token reçu après connexion :", token);
-      if (token) {
-        localStorage.setItem("token", token);
-      }
+      // On se connecte via l'appel au backend avec `withCredentials` pour le cookie
+      await login(email, password);
+
+      // Si la connexion réussie, mettre à jour l'état d'authentification
       setIsAuthenticated(true);
+
+      // Rediriger l'utilisateur vers la page d'accueil
       navigate("/");
     } catch (err) {
-      console.error("Erreur lors de la connexion :", err);
       setError(err.message || "Erreur lors de la connexion");
     }
   };
@@ -49,7 +48,6 @@ const Connexion = ({ setIsAuthenticated }) => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Mot de passe"
               required
-              autoComplete="current-password"
             />
             <button
               type="button"
@@ -119,6 +117,14 @@ const Connexion = ({ setIsAuthenticated }) => {
           100% {
             background-position: 100% 50%;
           }
+        }
+          
+        input[type="password"]::-ms-clear {
+        display: none !important;
+        }
+
+        input[type="password"]::-webkit-textfield-decoration-container {
+        display: none !important;
         }
       `}</style>
     </div>

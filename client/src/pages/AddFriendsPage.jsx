@@ -17,7 +17,8 @@ const AddFriendsPage = () => {
       }
     };
     fetchUsers();
-    // Écoute les mises à jour du statut des amis
+
+    // Écoute les mises à jour du statut des amis via le socket
     socket.on("userStatusUpdate", (data) => {
       setFriendsStatus((prevStatus) => ({
         ...prevStatus,

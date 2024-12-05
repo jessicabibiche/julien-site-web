@@ -1,13 +1,12 @@
 import axios from "axios";
+
 const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
 // Fonction pour supprimer un compte utilisateur
 export const deleteUserAccount = async () => {
   try {
     const response = await axios.delete(`${baseUrl}/edit-profile`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
+      withCredentials: true,
     });
     return response.data;
   } catch (error) {
@@ -20,17 +19,9 @@ export const deleteUserAccount = async () => {
 export const getUserProfile = async () => {
   try {
     console.log("Tentative de récupération du profil utilisateur...");
-    const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("Token JWT manquant.");
-    }
-
     const response = await axios.get(`${baseUrl}/edit-profile`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      withCredentials: true,
     });
-
     console.log("Profil utilisateur récupéré :", response.data);
     return response.data;
   } catch (error) {
@@ -39,7 +30,6 @@ export const getUserProfile = async () => {
       error.response || error
     );
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem("token");
       throw new Error("Session expirée, veuillez vous reconnecter");
     }
     throw error;
@@ -53,9 +43,7 @@ export const handleProfileUpdate = async (updatedProfile) => {
       `${baseUrl}/edit-profile`,
       updatedProfile,
       {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true,
       }
     );
     return response.data;
@@ -75,9 +63,7 @@ export const updateUserPassword = async (currentPassword, newPassword) => {
       `${baseUrl}/edit-profile/password`,
       { currentPassword, newPassword },
       {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true,
       }
     );
     return response.data;
@@ -91,7 +77,7 @@ export const updateUserPassword = async (currentPassword, newPassword) => {
 export const requestPasswordReset = async (email) => {
   try {
     const response = await axios.post(
-      `${baseUrl}/auth/request-password-reset`,
+      `${baseUrl}/edit-profile/request-password-reset`,
       { email },
       {
         headers: {
@@ -112,9 +98,8 @@ export const requestPasswordReset = async (email) => {
 // Récupérer tous les utilisateurs
 export const getAllUsers = async () => {
   try {
-    const token = localStorage.getItem("token");
     const response = await axios.get(`${baseUrl}/users`, {
-      headers: { Authorization: `Bearer ${token}` },
+      withCredentials: true,
     });
     return response.data;
   } catch (error) {
@@ -126,17 +111,25 @@ export const getAllUsers = async () => {
 // Ajouter un ami
 export const addFriend = async (friendId) => {
   try {
-    const token = localStorage.getItem("token");
+    console.log("Tentative d'ajout d'ami avec friendId :", friendId);
+    console.log("URL complète :", `${baseUrl}/users/add-friend/${friendId}`);
     const response = await axios.post(
-      `${baseUrl}/users/add-friend`,
-      { friendId },
+      `${baseUrl}/users/add-friend/${friendId}`,
+      {},
       {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       }
     );
+
+    console.log("Réponse de l'ajout d'ami :", response.data);
+
     return response.data;
   } catch (error) {
     console.error("Erreur lors de l'ajout d'ami :", error);
+    if (error.response) {
+      console.error("Statut de l'erreur :", error.response.status);
+      console.error("Données de l'erreur :", error.response.data);
+    }
     throw error;
   }
 };
@@ -144,9 +137,8 @@ export const addFriend = async (friendId) => {
 // Supprimer un ami
 export const removeFriend = async (friendId) => {
   try {
-    const token = localStorage.getItem("token");
     const response = await axios.delete(`${baseUrl}/users/remove-friend`, {
-      headers: { Authorization: `Bearer ${token}` },
+      withCredentials: true,
       data: { friendId },
     });
     return response.data;
@@ -157,18 +149,13 @@ export const removeFriend = async (friendId) => {
 };
 
 // Fonction pour rechercher un utilisateur par pseudo et discriminator
+
 export const searchUser = async (pseudo, discriminator) => {
   try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("Pas de token JWT trouvé. Vous devez être connecté.");
-    }
-
     const response = await axios.get(`${baseUrl}/users/search`, {
       params: { pseudo, discriminator },
-      headers: { Authorization: `Bearer ${token}` },
+      withCredentials: true,
     });
-
     return response.data;
   } catch (error) {
     console.error("Erreur lors de la recherche de l'utilisateur :", error);
@@ -179,29 +166,12 @@ export const searchUser = async (pseudo, discriminator) => {
 // Fonction pour obtenir les amis d'un utilisateur
 export const getUserFriends = async (userId) => {
   try {
-    const token = localStorage.getItem("token");
     const response = await axios.get(`${baseUrl}/users/${userId}/friends`, {
-      headers: { Authorization: `Bearer ${token}` },
+      withCredentials: true, // Inclure les cookies signés
     });
     return response.data;
   } catch (error) {
     console.error("Erreur lors de la récupération des amis :", error);
     throw error;
   }
-};
-
-// Fonction pour uploader un avatar utilisateur
-
-export default {
-  getUserProfile,
-  handleProfileUpdate,
-  updateUserPassword,
-  requestPasswordReset,
-  getAllUsers,
-  addFriend,
-  removeFriend,
-  searchUser,
-  getUserFriends,
-
-  deleteUserAccount,
 };

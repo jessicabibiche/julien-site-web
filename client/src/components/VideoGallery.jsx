@@ -62,7 +62,7 @@ function VideoGallery() {
             className="relative group p-4 rounded-lg overflow-hidden transform transition-transform hover:scale-105"
             style={{
               position: "relative",
-              boxShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
+              boxShadow: "0 0 15px rgba(255, 215, 0, 0.5)",
               backgroundColor: "black",
               borderRadius: "12px",
             }}
@@ -95,8 +95,7 @@ function VideoGallery() {
                   style={{
                     position: "relative",
                     width: "60px",
-                    height: "60px",
-                    borderRadius: "50%",
+                    height: "40px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -110,7 +109,7 @@ function VideoGallery() {
                     fill="white"
                     stroke="black"
                     strokeWidth="1"
-                    className="w-6 h-6"
+                    className="w-5 h-5"
                   >
                     <polygon points="5,3 19,12 5,21" />
                   </svg>

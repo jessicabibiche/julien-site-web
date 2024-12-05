@@ -28,9 +28,10 @@ const registerUser = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      maxAge: 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 1000, // 1 heure
       sameSite: "lax",
+      signed: true,
     });
 
     res
@@ -49,29 +50,37 @@ const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    // Chercher l'utilisateur par email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Identifiants invalides" });
     }
 
+    // Vérifier si le mot de passe est valide
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Identifiants invalides" });
     }
 
     // Créer un token JWT
-    const token = user.createAccessToken();
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     // Mettre à jour le statut de l'utilisateur à 'online'
     user.status = "online";
     await user.save();
 
+    // Définir le cookie signé avec le token
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "development",
       maxAge: 60 * 60 * 1000,
+      sameSite: "lax",
+      signed: true,
     });
 
+    // Retourner la réponse avec les informations de l'utilisateur
     return res.status(200).json({
       user: {
         id: user._id,
@@ -92,8 +101,8 @@ const loginUser = async (req, res) => {
 const logout = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: process.env.NODE_ENV === "development",
+    sameSite: "lax",
   });
   res.status(StatusCodes.OK).json({ message: "Déconnexion réussie" });
 };
@@ -129,8 +138,9 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// Vérification de l'authentification
 const checkAuth = (req, res) => {
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  const token = req.signedCookies?.token; // Récupérer le cookie signé
   if (!token) {
     return res.status(401).json({ message: "Pas de token fourni !" });
   }
@@ -138,7 +148,7 @@ const checkAuth = (req, res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     res.status(200).json({ authenticated: true, user: decodedToken });
   } catch (error) {
-    res.status(200).json({ authenticated: false });
+    res.status(401).json({ authenticated: false, message: "Token invalide" });
   }
 };
 

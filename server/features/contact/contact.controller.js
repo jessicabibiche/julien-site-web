@@ -1,6 +1,7 @@
 import sendEmail from "../utils/sendEmail.js";
 import { body, validationResult } from "express-validator";
 import rateLimit from "express-rate-limit";
+import jwt from "jsonwebtoken";
 
 // Limiter la fréquence d'envoi à 5 demandes toutes les 15 minutes
 const contactRateLimiter = rateLimit({
@@ -11,18 +12,30 @@ const contactRateLimiter = rateLimit({
 
 // Fonction d'envoi du message de contact
 const sendContactMessage = async (req, res) => {
-  const { pseudo, email, message } = req.body;
+  const token = req.signedCookies?.token;
 
-  // Vérifier les erreurs de validation
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+  // Vérification du token
+  if (!token) {
+    return res
+      .status(401)
+      .json({ message: "Accès non autorisé. Vous devez être connecté." });
   }
 
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Utilisateur authentifié :", decoded);
+
+    const { pseudo, email, message } = req.body;
+
+    // Vérifier les erreurs de validation
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     // Utiliser sendEmail pour envoyer le message au streamer
     await sendEmail({
-      to: "assistance.kodeldragon@gmail.com",
+      to: process.env.EMAIL_USER,
       subject: `Nouveau message de contact de ${pseudo}`,
       text: `Pseudo: ${pseudo}\nEmail: ${email}\nMessage: ${message}`,
     });

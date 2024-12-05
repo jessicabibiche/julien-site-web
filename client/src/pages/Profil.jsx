@@ -46,24 +46,15 @@ const Profil = ({
 }) => {
   // États utilisateur
   const { status, lastOnline } = useContext(UserStatusContext);
-  const [pseudo, setPseudo] = useState(localStorage.getItem("pseudo") || "");
-  const [email, setEmail] = useState(localStorage.getItem("email") || "");
-  const [bio, setBio] = useState(localStorage.getItem("bio") || "");
-  const [avatar, setAvatar] = useState(
-    localStorage.getItem("avatar") || defaultAvatar
-  );
-  const [lastname, setLastName] = useState(
-    localStorage.getItem("lastname") || ""
-  );
-  const [firstname, setFirstName] = useState(
-    localStorage.getItem("firstname") || ""
-  );
-  const [isFriendsListPublic, setIsFriendsListPublic] = useState(
-    localStorage.getItem("isFriendsListPublic") === "true"
-  );
-  const [neonColor, setNeonColor] = useState(
-    localStorage.getItem("neonColor") || "violet"
-  );
+  const [pseudo, setPseudo] = useState("");
+  const [email, setEmail] = useState("");
+  const [bio, setBio] = useState("");
+  const [avatar, setAvatar] = useState(defaultAvatar);
+  const [lastname, setLastName] = useState("");
+  const [firstname, setFirstName] = useState("");
+  const [isFriendsListPublic, setIsFriendsListPublic] = useState(false);
+  const [neonColor, setNeonColor] = useState("violet");
+
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -131,16 +122,6 @@ const Profil = ({
         setLastName(user.lastname || "");
         setFirstName(user.firstname || "");
         setIsFriendsListPublic(user.isFriendsListPublic || false);
-
-        // Mise à jour dans le localStorage pour persistance
-        localStorage.setItem("pseudo", user.pseudo || "");
-        localStorage.setItem("email", user.email || "");
-        localStorage.setItem("bio", user.bio || "");
-        localStorage.setItem("avatar", user.avatar || defaultAvatar);
-        localStorage.setItem("lastname", user.lastname || "");
-        localStorage.setItem("firstname", user.firstname || "");
-        localStorage.setItem("isFriendsListPublic", user.isFriendsListPublic);
-        localStorage.setItem("neonColor", neonColor);
 
         // Mise à jour de l'état dans la navbar
         setUserAvatar(user.avatar || defaultAvatar);
@@ -323,7 +304,7 @@ const Profil = ({
           ></span>
         </div>
         <div className="ml-6">
-          <h2 className="text-3xl font-bold text-white">{pseudo}</h2>
+          <h2 className="text-3xl font-bold text-gray-400">{pseudo}</h2>
           <p className="text-sm text-gray-500">{getLastOnlineText()}</p>
         </div>
       </div>

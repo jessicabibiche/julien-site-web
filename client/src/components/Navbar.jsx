@@ -25,23 +25,33 @@ function Navbar({
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [discriminator, setDiscriminator] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [isAdding, setIsAdding] = useState({}); // Tracks adding state for each user
+  const [isAdding, setIsAdding] = useState({});
   const dropdownRef = useRef(null);
-
+  const searchContainerRef = useRef(null);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
-        setShowLanguageDropdown(false);
+      }
+
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setShowSearch(false);
+        setSearchResults([]);
+        setSearchQuery("");
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [showDropdown, showSearch]);
 
   const handleLogout = async () => {
     try {
@@ -67,28 +77,57 @@ function Navbar({
   };
 
   const handleSearch = async (query) => {
+    console.log("Recherche déclenchée avec :", query);
     try {
       if (!query.trim()) {
         setSearchResults([]);
         return;
       }
-      const results = await searchUser(query.trim());
+
+      // Split le pseudo et le discriminateur
+      const [pseudo, discriminator] = query.split("#");
+
+      const results = await searchUser(
+        pseudo.trim(),
+        discriminator ? discriminator.trim() : ""
+      );
+      console.log("Résultats de recherche :", results);
       setSearchResults(results);
     } catch (error) {
-      console.error("Erreur lors de la recherche :", error);
+      console.error(
+        "Erreur lors de la recherche :",
+        error.response?.data || error
+      );
       setSearchResults([]);
     }
   };
 
   const handleAddFriend = async (friendId) => {
+    console.log("Tentative d'ajout d'ami avec ID :", friendId);
     try {
       setIsAdding((prev) => ({ ...prev, [friendId]: true }));
-      await addFriend(friendId);
+      const response = await addFriend(friendId);
+      console.log("Réponse après ajout d'ami :", response);
       setIsAdding((prev) => ({ ...prev, [friendId]: false }));
       alert("Ami ajouté avec succès !");
+
+      // Fermer la recherche après l'ajout d'ami
+      setShowSearch(false);
+      setSearchResults([]);
+      setSearchQuery(""); // Réinitialiser la barre de recherche
     } catch (error) {
-      console.error("Erreur lors de l'ajout d'ami :", error);
+      console.error(
+        "Erreur lors de l'ajout d'ami :",
+        error.response?.data || error
+      );
       setIsAdding((prev) => ({ ...prev, [friendId]: false }));
+
+      // Gestion spécifique de l'erreur 409
+      if (error.response?.status === 409) {
+        alert("Cet utilisateur est déjà dans votre liste d'amis.");
+      } else {
+        alert("Erreur lors de l'ajout d'ami.");
+      }
     }
   };
 
@@ -253,7 +292,7 @@ function Navbar({
             type="text"
             value={searchQuery}
             onChange={handleSearchInputChange}
-            placeholder="Rechercher des amis..."
+            placeholder="Rechercher (pseudo#1234)"
             className="w-64 transition-all duration-500 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none border border-gray-600 hover:border-yellow-400"
           />
         )}
@@ -266,6 +305,7 @@ function Navbar({
         >
           <FiSearch size={20} />
         </button>
+
         {searchResults.length > 0 && (
           <div className="absolute top-12 left-0 w-64 bg-gray-800 text-white rounded-lg shadow-lg py-2 z-20">
             {searchResults.map((user) => (
@@ -280,7 +320,9 @@ function Navbar({
                     className="w-8 h-8 rounded-full"
                   />
                   <div>
-                    <p className="text-sm font-semibold">{user.pseudo}</p>
+                    <p className="text-sm font-semibold">
+                      {user.pseudo}#{user.discriminator}
+                    </p>
                     <span
                       className={`inline-block w-3 h-3 rounded-full ${
                         user.status === "online"
@@ -347,14 +389,14 @@ function Navbar({
             <img
               src={userAvatar || defaultAvatar}
               alt="Avatar"
-              className="w-12 h-12 rounded-full border-4"
+              className="w-12 h-12 rounded-full border-1"
               style={{
                 borderColor: neonColor || "#FFF",
                 boxShadow: `0 0 10px ${neonColor}`,
               }}
             />
             <span
-              className={`absolute bottom-0 right-0 w-4 h-4 rounded-full ${
+              className={`absolute bottom-2 right-0 w-3 h-3 rounded-full ${
                 status === "online"
                   ? "bg-green-500"
                   : status === "busy"
@@ -365,7 +407,7 @@ function Navbar({
           </button>
           {showDropdown && (
             <div
-              className="absolute right-0 mt-2 w-64 bg-gray-800 text-white py-2 rounded-lg shadow-lg z-20"
+              className="absolute right-0 mt-2 w-48 bg-gray-800 text-white py-2 rounded-lg shadow-lg z-20"
               ref={dropdownRef}
             >
               <Link to="/profil" className="block px-4 py-2 hover:bg-gray-700">

@@ -15,7 +15,7 @@ function Accueil() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1))",
+            "linear-gradient(180deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4))",
         }}
       ></div>
 

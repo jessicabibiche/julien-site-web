@@ -91,10 +91,19 @@ export const resetPassword = async (req, res) => {
 
 // Fonction pour mettre à jour le mot de passe de l'utilisateur connecté
 export const updateUserPassword = async (req, res) => {
-  const { userId } = req.user; // L'utilisateur doit être connecté
-  const { oldPassword, newPassword } = req.body;
+  const token = req.signedCookies.token;
+
+  if (!token) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: "Token manquant" });
+  }
 
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId; // L'utilisateur connecté
+    const { oldPassword, newPassword } = req.body;
+
     const user = await User.findById(userId);
     if (!user) {
       return res
@@ -102,7 +111,6 @@ export const updateUserPassword = async (req, res) => {
         .json({ message: "Utilisateur non trouvé" });
     }
 
-    // Vérifier que l'ancien mot de passe est correct
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
       return res
@@ -110,7 +118,6 @@ export const updateUserPassword = async (req, res) => {
         .json({ message: "Ancien mot de passe incorrect" });
     }
 
-    // Mettre à jour le mot de passe
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
@@ -118,6 +125,7 @@ export const updateUserPassword = async (req, res) => {
       .status(StatusCodes.OK)
       .json({ message: "Mot de passe mis à jour avec succès" });
   } catch (error) {
+    console.error("Erreur lors de la mise à jour du mot de passe :", error);
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Erreur lors de la mise à jour du mot de passe" });
@@ -126,10 +134,21 @@ export const updateUserPassword = async (req, res) => {
 
 // Fonction pour mettre à jour les informations sensibles
 export const updateUserSensitiveInfo = async (req, res) => {
-  const { userId } = req.user;
-  const { pseudo, firstname, lastname, address, phone, newPassword } = req.body;
+  const token = req.signedCookies.token;
+
+  if (!token) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: "Token manquant" });
+  }
 
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId; // L'utilisateur connecté
+
+    const { pseudo, firstname, lastname, address, phone, newPassword } =
+      req.body;
+
     const user = await User.findById(userId);
     if (!user) {
       return res
@@ -145,7 +164,6 @@ export const updateUserSensitiveInfo = async (req, res) => {
     if (address) user.address = address;
     if (phone) user.phone = phone;
 
-    // Mettre à jour le mot de passe uniquement si `newPassword` est fourni
     if (newPassword) {
       user.password = await bcrypt.hash(newPassword, 10);
       console.log("Mot de passe mis à jour");
@@ -162,6 +180,7 @@ export const updateUserSensitiveInfo = async (req, res) => {
       user: { pseudo, firstname, lastname, address, phone },
     });
   } catch (error) {
+    console.error("Erreur lors de la mise à jour des informations :", error);
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Erreur lors de la mise à jour des informations" });
@@ -170,17 +189,28 @@ export const updateUserSensitiveInfo = async (req, res) => {
 
 // Fonction pour obtenir le profil de l'utilisateur connecté
 export const getUserProfile = async (req, res) => {
-  const { userId } = req.user;
+  const token = req.signedCookies.token;
+
+  if (!token) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: "Token manquant" });
+  }
 
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId; // L'utilisateur connecté
+
     const user = await User.findById(userId).select(
       "pseudo firstname lastname address phone email avatar status"
     );
+
     if (!user) {
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ message: "Utilisateur non trouvé" });
     }
+
     return res.status(StatusCodes.OK).json(user);
   } catch (error) {
     console.error("Erreur lors de la récupération du profil :", error);

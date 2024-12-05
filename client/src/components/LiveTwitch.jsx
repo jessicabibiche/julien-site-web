@@ -47,7 +47,7 @@ function LiveTwitch() {
               "linear-gradient(black, black), linear-gradient(90deg, #8A2BE2, #FFD700)",
             backgroundOrigin: "border-box",
             backgroundClip: "content-box, border-box",
-            boxShadow: "0 0 20px 10px rgba(138, 43, 226, 0.6)",
+            boxShadow: "0 0 10px 8px rgba(138, 43, 226, 0.6)",
           }}
         ></div>
 

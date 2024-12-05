@@ -38,15 +38,12 @@ export const login = async (email, password) => {
         withCredentials: true,
       }
     );
-
-    // Stocker le token dans localStorage
-    const token = response.data.token;
-    console.log("Token reçu après connexion :", token); // Vérifie le token ici
-    localStorage.setItem("token", token);
-
     return response.data;
   } catch (error) {
-    throw new Error("Erreur lors de la connexion");
+    console.error("Erreur lors de la connexion :", error);
+    throw new Error(
+      error.response?.data?.message || "Erreur lors de la connexion"
+    );
   }
 };
 
@@ -56,8 +53,9 @@ export const logout = async () => {
     await axios.post(`${baseUrl}/auth/logout`, null, {
       withCredentials: true,
     });
-    localStorage.clear(); // Supprimez toutes les données locales après déconnexion
+    localStorage.clear();
   } catch (error) {
+    console.error("Erreur lors de la déconnexion :", error);
     throw new Error("Erreur lors de la déconnexion");
   }
 };
@@ -65,33 +63,15 @@ export const logout = async () => {
 // Vérification de l'authentification
 export const checkAuth = async () => {
   try {
-    // Récupérer le token depuis les cookies ou le localStorage
-    const token =
-      document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1] || localStorage.getItem("token");
-
-    if (!token) {
-      throw new Error("Token JWT manquant.");
-    }
-
-    // Envoyer une requête au backend pour vérifier l'authentification
     const response = await axios.get(`${baseUrl}/auth/check-auth`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      withCredentials: true, // Assure l'envoi des cookies (si nécessaire)
+      withCredentials: true,
     });
-
-    return response.data; // Retourne les données de l'utilisateur
+    return response.data;
   } catch (error) {
-    if (error.response && error.response.status === 403) {
-      localStorage.removeItem("token"); // Supprimez le token s'il est invalide
-      throw new Error("Accès refusé. Veuillez vous reconnecter.");
-    }
-    throw error;
+    console.error(
+      "Erreur lors de la vérification de l'authentification :",
+      error
+    );
+    return { authenticated: false };
   }
 };
-
-export default { register, login, logout, checkAuth };

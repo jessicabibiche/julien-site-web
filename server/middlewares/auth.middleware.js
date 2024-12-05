@@ -1,20 +1,29 @@
 import jwt from "jsonwebtoken";
+import { UnauthenticatedError } from "../errors/index.js";
 
 const authenticateUser = (req, res, next) => {
-  const token =
-    req.headers.authorization?.split(" ")[1] || // Vérifie l'en-tête Authorization
-    req.cookies.token; // Vérifie les cookies
+  console.log("Vérification des cookies signés :", req.signedCookies);
+
+  const token = req.signedCookies.token;
 
   if (!token) {
-    return res.status(401).json({ message: "Pas de token fourni !" });
+    console.log("Aucun token trouvé");
+    throw new UnauthenticatedError(
+      "Accès non autorisé. Vous devez être connecté."
+    );
   }
 
   try {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { userId: decodedToken.userId };
+    console.log("Token trouvé :", token);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Token décodé :", decoded);
+    req.user = { userId: decoded.userId };
     next();
   } catch (error) {
-    return res.status(403).json({ message: "Accès non autorisé !" });
+    console.error("Erreur lors de la vérification du token :", error);
+    throw new UnauthenticatedError(
+      "Token invalide ou expiré. Veuillez vous reconnecter."
+    );
   }
 };
 

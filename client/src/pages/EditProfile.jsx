@@ -56,7 +56,7 @@ const EditProfile = () => {
           { withCredentials: true }
         );
         setSuccessMessage("Profil mis à jour avec succès !");
-        setInitialData(formData);
+        setInitialData(formData); // Met à jour les données initiales après succès de la mise à jour
         setTimeout(() => setSuccessMessage(""), 3000);
       } catch (err) {
         setErrorMessage("Erreur lors de la mise à jour du profil.");
