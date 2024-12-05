@@ -4,7 +4,6 @@ import {
   getUserProfile,
   handleProfileUpdate,
   deleteUserAccount,
-  requestPasswordReset,
 } from "../services/user.services";
 import { uploadImageToCloudinary } from "../services/cloudinary.services";
 import { UserStatusContext } from "../context/UserStatusContext.jsx";
@@ -50,8 +49,6 @@ const Profil = ({
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
   const [avatar, setAvatar] = useState(defaultAvatar);
-  const [lastname, setLastName] = useState("");
-  const [firstname, setFirstName] = useState("");
   const [isFriendsListPublic, setIsFriendsListPublic] = useState(false);
   const [neonColor, setNeonColor] = useState("violet");
 
@@ -119,8 +116,6 @@ const Profil = ({
         setEmail(user.email || "");
         setBio(user.bio || "");
         setAvatar(user.avatar || defaultAvatar);
-        setLastName(user.lastname || "");
-        setFirstName(user.firstname || "");
         setIsFriendsListPublic(user.isFriendsListPublic || false);
 
         // Mise à jour de l'état dans la navbar
@@ -156,8 +151,6 @@ const Profil = ({
         pseudo,
         bio,
         email,
-        lastname,
-        firstname,
         isFriendsListPublic,
       };
 
@@ -167,8 +160,6 @@ const Profil = ({
       setEmail(updatedUser.email || email);
       setBio(updatedUser.bio || bio);
       setAvatar(updatedUser.avatar || avatar);
-      setLastName(updatedUser.lastname || lastname);
-      setFirstName(updatedUser.firstname || firstname);
       setIsFriendsListPublic(
         updatedUser.isFriendsListPublic || isFriendsListPublic
       );
@@ -177,8 +168,6 @@ const Profil = ({
       localStorage.setItem("email", updatedUser.email || email);
       localStorage.setItem("bio", updatedUser.bio || bio);
       localStorage.setItem("avatar", updatedUser.avatar || avatar);
-      localStorage.setItem("lastname", updatedUser.lastname || lastname);
-      localStorage.setItem("firstname", updatedUser.firstname || firstname);
       localStorage.setItem(
         "isFriendsListPublic",
         updatedUser.isFriendsListPublic

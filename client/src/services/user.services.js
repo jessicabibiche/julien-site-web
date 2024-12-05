@@ -39,13 +39,9 @@ export const getUserProfile = async () => {
 // Fonction pour mettre à jour le profil utilisateur (bio, avatar, neon)
 export const handleProfileUpdate = async (updatedProfile) => {
   try {
-    const response = await axios.put(
-      `${baseUrl}/edit-profile`,
-      updatedProfile,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await axios.put(`${baseUrl}/profile`, updatedProfile, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     console.error(
