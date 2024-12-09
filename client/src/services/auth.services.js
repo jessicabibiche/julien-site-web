@@ -59,6 +59,29 @@ export const logout = async () => {
     throw new Error("Erreur lors de la déconnexion");
   }
 };
+// Fonction pour envoyer une notification MagicBell
+export const sendNotification = async (toUserId, message) => {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/users/test-notification`,
+      {
+        toUserId,
+        message,
+      },
+      {
+        withCredentials: true,
+      }
+    );
+    console.log("Notification envoyée :", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Erreur lors de l'envoi de la notification :",
+      error.response?.data || error
+    );
+    throw error;
+  }
+};
 
 // Vérification de l'authentification
 export const checkAuth = async () => {

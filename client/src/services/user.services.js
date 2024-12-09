@@ -171,3 +171,34 @@ export const getFriends = async () => {
     throw error;
   }
 };
+// Récupérer les demandes d'ami
+
+export const getFriendRequests = async () => {
+  try {
+    const response = await axios.get(`${baseUrl}/friend-requests`, {
+      withCredentials: true, // Nécessaire pour les cookies signés
+    });
+    return response.data.friendRequests; // Assurez-vous que le backend retourne un champ "friendRequests"
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des demandes d'amis :",
+      error
+    );
+    throw error;
+  }
+};
+
+// Répondre à une demande d'ami
+export const respondToFriendRequest = async (requestId, action) => {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/friend-requests/respond`,
+      { requestId, action },
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors du traitement de la demande d'ami :", error);
+    throw error;
+  }
+};

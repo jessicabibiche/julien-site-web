@@ -7,11 +7,25 @@ import {
   updateAvatar,
   uploadAvatar,
   getFriends,
+  testNotification,
+  getNotifications,
+  respondToFriendRequest,
+  getFriendRequests,
 } from "./users.controller.js";
 import authenticateUser from "../../middlewares/auth.middleware.js";
 import upload from "../../middlewares/upload.middleware.js";
 
 const router = express.Router();
+
+router.post("/test-notification", testNotification);
+router.get("/notifications", authenticateUser, getNotifications);
+
+router.get("/friend-requests", authenticateUser, getFriendRequests);
+router.post(
+  "/respond-friend-request",
+  authenticateUser,
+  respondToFriendRequest
+);
 
 // Route pour ajouter un ami
 router.post("/add-friend/:friendId", authenticateUser, addFriend);

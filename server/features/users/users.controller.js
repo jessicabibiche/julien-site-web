@@ -1,90 +1,81 @@
 import User from "../users/users.model.js";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
+import Notification from "./Notification.js";
 
 // ajouter un ami
 const addFriend = async (req, res) => {
-  const token = req.signedCookies.token;
-  if (!token) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: "Accès non autorisé. Veuillez vous connecter." });
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { friendId } = req.params;
-    const userId = decoded.userId;
-
-    // Empêcher l'utilisateur de s'ajouter lui-même
-    if (friendId === userId) {
+    const token = req.signedCookies.token;
+    if (!token) {
       return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Vous ne pouvez pas vous ajouter vous-même en ami." });
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "Token manquant." });
     }
 
-    const user = await User.findById(userId);
-    const friend = await User.findById(friendId);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+    const { friendId } = req.params;
 
-    // Vérifier si l'ami existe
+    if (userId === friendId) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "Vous ne pouvez pas vous ajouter vous-même." });
+    }
+
+    const friend = await User.findById(friendId);
     if (!friend) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .json({ message: "Ami non trouvé." });
+        .json({ message: "Utilisateur non trouvé." });
     }
 
-    // Vérifier si l'utilisateur a déjà ajouté cet ami
-    if (user.friends.some((f) => f.friendId.equals(friendId))) {
-      return res
-        .status(StatusCodes.CONFLICT)
-        .json({ message: "Cet utilisateur est déjà votre ami." });
-    }
-
-    // Vérifier si l'ami a déjà ajouté cet utilisateur
-    if (friend.friends.some((f) => f.friendId.equals(userId))) {
+    if (
+      friend.pendingFriendRequests.some((req) => req.from.toString() === userId)
+    ) {
       return res.status(StatusCodes.CONFLICT).json({
-        message: "Vous êtes déjà dans la liste d'amis de cet utilisateur.",
+        message: "Vous avez déjà envoyé une demande à cet utilisateur.",
       });
     }
 
-    // Ajouter l'ami dans la liste de l'utilisateur
-    user.friends.push({ friendId: friend.id, status: "offline" });
-
-    // Ajouter l'utilisateur dans la liste de l'ami
-    friend.friends.push({ friendId: user.id, status: "offline" });
-
-    // Enregistrer les deux utilisateurs
-    await user.save();
+    friend.pendingFriendRequests.push({ from: userId });
     await friend.save();
 
-    res.status(StatusCodes.OK).json({ message: "Ami ajouté avec succès." });
+    res
+      .status(StatusCodes.OK)
+      .json({ message: "Demande d'ami envoyée avec succès." });
   } catch (error) {
     console.error("Erreur lors de l'ajout d'ami :", error);
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: "Erreur lors de l'ajout de l'ami." });
+      .json({ message: "Erreur interne." });
   }
 };
 
 // supprimer un ami
 const removeFriend = async (req, res) => {
-  const token = req.signedCookies.token;
-  if (!token) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: "Token manquant" });
-  }
-
   try {
+    const token = req.signedCookies.token;
+    if (!token) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "Token manquant." });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { friendId } = req.params;
     const userId = decoded.userId;
+    const { friendId } = req.params;
 
     const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Utilisateur non trouvé." });
+    }
+
     user.friends = user.friends.filter(
       (friend) => !friend.friendId.equals(friendId)
     );
-
     await user.save();
 
     res.status(StatusCodes.OK).json({ message: "Ami supprimé avec succès." });
@@ -92,7 +83,7 @@ const removeFriend = async (req, res) => {
     console.error("Erreur lors de la suppression d'ami :", error);
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: "Erreur lors de la suppression de l'ami." });
+      .json({ message: "Erreur interne." });
   }
 };
 
@@ -272,33 +263,26 @@ const uploadAvatar = async (req, res) => {
 const getFriends = async (req, res) => {
   try {
     const token = req.signedCookies.token;
-
     if (!token) {
       return res
-        .status(401)
-        .json({ message: "Accès non autorisé. Veuillez vous connecter." });
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "Token manquant." });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
 
-    // Récupérer l'utilisateur et ses amis
-    const user = await User.findById(userId)
-      .populate("friends.friendId", "pseudo avatar status lastOnline")
-      .populate("pendingFriendRequests.from", "pseudo avatar");
+    const user = await User.findById(userId).populate(
+      "friends.friendId",
+      "pseudo avatar status lastOnline"
+    );
 
     if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé." });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Utilisateur non trouvé." });
     }
 
-    // Vérifier si l'utilisateur a des amis
-    if (!user.friends || user.friends.length === 0) {
-      return res.status(200).json({
-        message: "Vous n'avez pas encore ajouté d'amis.",
-        friends: [],
-      });
-    }
-
-    // Mapper les informations des amis
     const friends = user.friends.map((friend) => ({
       id: friend.friendId._id,
       pseudo: friend.friendId.pseudo,
@@ -307,12 +291,142 @@ const getFriends = async (req, res) => {
       lastOnline: friend.friendId.lastOnline,
     }));
 
-    res.status(200).json({ friends });
+    res.status(StatusCodes.OK).json({ friends });
   } catch (error) {
     console.error("Erreur lors de la récupération des amis :", error);
     res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: "Erreur interne." });
+  }
+};
+
+const getNotifications = async (req, res) => {
+  try {
+    // Récupérer les notifications (exemple simplifié)
+    const userId = req.user.userId;
+    const notifications = await Notification.find({ userId });
+
+    res.status(200).json({ notifications });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des notifications :", error);
+    res
       .status(500)
-      .json({ message: "Erreur lors de la récupération des amis." });
+      .json({ message: "Erreur lors de la récupération des notifications." });
+  }
+};
+const testNotification = async (req, res) => {
+  try {
+    const { toUserId, message } = req.body;
+
+    if (!toUserId || !message) {
+      return res
+        .status(400)
+        .json({ message: "toUserId and message are required." });
+    }
+
+    // Log details for debugging
+    console.log("Sending notification to:", toUserId);
+    console.log("Message:", message);
+
+    // Here, you would implement the logic to send the notification
+    // For example, using some notification service:
+    const result = await sendNotification(toUserId, message);
+
+    console.log("Notification result:", result);
+
+    res.status(200).json({ message: "Test notification sent successfully!" });
+  } catch (error) {
+    console.error("Error sending test notification:", error);
+    res
+      .status(500)
+      .json({ message: "Error occurred while sending test notification." });
+  }
+};
+const getFriendRequests = async (req, res) => {
+  try {
+    const token = req.signedCookies.token;
+    if (!token) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "Token manquant." });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const user = await User.findById(userId).populate(
+      "pendingFriendRequests.from",
+      "pseudo avatar"
+    );
+
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Utilisateur non trouvé." });
+    }
+
+    const friendRequests = user.pendingFriendRequests.map((request) => ({
+      id: request.from._id,
+      pseudo: request.from.pseudo,
+      avatar: request.from.avatar,
+      sentAt: request.sentAt,
+    }));
+
+    res.status(StatusCodes.OK).json({ friendRequests });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des demandes d'amis :",
+      error
+    );
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: "Erreur interne." });
+  }
+};
+const respondToFriendRequest = async (req, res) => {
+  try {
+    const token = req.signedCookies.token;
+    if (!token) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "Token manquant." });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+    const { requestId, action } = req.body;
+
+    const user = await User.findById(userId);
+    const request = user.pendingFriendRequests.find(
+      (req) => req._id.toString() === requestId
+    );
+
+    if (!request) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Demande non trouvée." });
+    }
+
+    if (action === "accept") {
+      user.friends.push({ friendId: request.from });
+      const friend = await User.findById(request.from);
+      friend.friends.push({ friendId: userId });
+      await friend.save();
+    }
+
+    user.pendingFriendRequests = user.pendingFriendRequests.filter(
+      (req) => req._id.toString() !== requestId
+    );
+    await user.save();
+
+    res.status(StatusCodes.OK).json({
+      message: `Demande ${action === "accept" ? "acceptée" : "refusée"}.`,
+    });
+  } catch (error) {
+    console.error("Erreur lors du traitement de la demande :", error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: "Erreur interne." });
   }
 };
 
@@ -324,4 +438,8 @@ export {
   updateAvatar,
   uploadAvatar,
   getFriends,
+  testNotification,
+  getNotifications,
+  getFriendRequests,
+  respondToFriendRequest,
 };

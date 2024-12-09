@@ -22,6 +22,7 @@ import EditProfile from "./pages/EditProfile";
 import { getUserProfile } from "./services/user.services";
 import { checkAuth } from "./services/auth.services";
 import defaultAvatar from "/avatars/avatardefault.png";
+import Notifications from "./components/Notifications";
 
 // Route privée pour protéger certaines pages
 const PrivateRoute = ({ children, isAuthenticated }) => {
@@ -119,6 +120,12 @@ function App() {
           />
           <Route path="/add-friend" element={<AddFriendsPage />} />
           <Route path="/donations" element={<Donations />} />
+        </Routes>
+        <Routes>
+          <Route path="/" element={<Accueil />} />
+          <Route path="/connexion" element={<Connexion />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/profil" element={<Profil />} />
         </Routes>
       </div>
     </Router>

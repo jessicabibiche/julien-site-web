@@ -7,6 +7,9 @@ import { UserStatusContext } from "../context/UserStatusContext.jsx";
 import { logout, checkAuth } from "../services/auth.services.js";
 import { searchUser, addFriend } from "../services/user.services.js";
 import socket from "../services/socketClient.js";
+import { getNotifications } from "../services/notification.services.js";
+
+import { FiBell } from "react-icons/fi";
 
 function Navbar({
   isAuthenticated,
@@ -31,6 +34,23 @@ function Navbar({
   const [isAdding, setIsAdding] = useState({});
   const dropdownRef = useRef(null);
   const searchContainerRef = useRef(null);
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const notifications = await getNotifications();
+        setNotificationCount(notifications.length);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des notifications :",
+          error
+        );
+      }
+    };
+
+    fetchNotifications();
+  }, []);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -103,31 +123,20 @@ function Navbar({
   };
 
   const handleAddFriend = async (friendId) => {
-    console.log("Tentative d'ajout d'ami avec ID :", friendId);
+    console.log("Envoi de demande d'ami à l'ID :", friendId);
     try {
       setIsAdding((prev) => ({ ...prev, [friendId]: true }));
-      const response = await addFriend(friendId);
-      console.log("Réponse après ajout d'ami :", response);
-      setIsAdding((prev) => ({ ...prev, [friendId]: false }));
-      alert("Ami ajouté avec succès !");
+      const response = await addFriend(friendId); // Envoie une demande au backend
+      console.log("Demande d'ami envoyée :", response.message);
 
-      // Fermer la recherche après l'ajout d'ami
-      setShowSearch(false);
-      setSearchResults([]);
-      setSearchQuery(""); // Réinitialiser la barre de recherche
+      alert("Demande d'ami envoyée !");
     } catch (error) {
-      console.error(
-        "Erreur lors de l'ajout d'ami :",
-        error.response?.data || error
+      console.error("Erreur lors de l'envoi de la demande d'ami :", error);
+      alert(
+        error.response?.data?.message || "Erreur lors de l'envoi de la demande."
       );
+    } finally {
       setIsAdding((prev) => ({ ...prev, [friendId]: false }));
-
-      // Gestion spécifique de l'erreur 409
-      if (error.response?.status === 409) {
-        alert("Cet utilisateur est déjà dans votre liste d'amis.");
-      } else {
-        alert("Erreur lors de l'ajout d'ami.");
-      }
     }
   };
 
@@ -449,6 +458,20 @@ function Navbar({
           )}
         </div>
       )}
+      <div className="relative">
+        <Link
+          to="/notifications"
+          className="relative text-white hover:text-yellow-400 flex items-center"
+        >
+          <FiBell size={24} />
+          {notificationCount > 0 && (
+            <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs px-2">
+              {notificationCount}
+            </span>
+          )}
+        </Link>
+      </div>
+
       {/* Sélecteur de langue */}
       <div className="relative ml-4">
         {/* Language Selector only on Desktop */}

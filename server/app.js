@@ -21,6 +21,8 @@ import swaggerUI from "swagger-ui-express";
 import avatarRoutes from "./features/avatars/avatar.routes.js";
 import cookieParser from "cookie-parser";
 import editProfileRoutes from "./features/editProfile/editProfile.route.js";
+import notificationRoutes from "./features/users/Notification.js";
+
 // Récupération des chemins corrects dans ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,6 +77,7 @@ app.use("/api/v1/contact", contactRoutes);
 app.use("/api/v1/donations", donationRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/edit-profile", editProfileRoutes);
+app.use("/api/v1", notificationRoutes);
 
 // Middleware pour gérer les routes non trouvées et les erreurs
 app.use(notFound);
