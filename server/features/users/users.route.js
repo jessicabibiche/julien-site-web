@@ -6,6 +6,7 @@ import {
   selectAvatar,
   updateAvatar,
   uploadAvatar,
+  getFriends,
 } from "./users.controller.js";
 import authenticateUser from "../../middlewares/auth.middleware.js";
 import upload from "../../middlewares/upload.middleware.js";
@@ -26,6 +27,9 @@ router.put("/update-avatar", authenticateUser, updateAvatar);
 
 // Route pour sélectionner un avatar prédéfini
 router.put("/select-avatar", authenticateUser, selectAvatar);
+
+// Route pour récupérer la liste des amis
+router.get("/get-friends", authenticateUser, getFriends);
 
 // Route pour uploader un avatar depuis un téléphone/PC
 router.post(

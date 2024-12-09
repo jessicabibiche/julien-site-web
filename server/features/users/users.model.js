@@ -92,14 +92,14 @@ const UserSchema = new Schema({
   },
   friends: [
     {
-      friendId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-      status: {
-        type: String,
-        default: "offline",
-      },
+      friendId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      addedAt: { type: Date, default: Date.now },
+    },
+  ],
+  pendingFriendRequests: [
+    {
+      from: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Utilisateur qui a envoyé la demande
+      sentAt: { type: Date, default: Date.now }, // Date de la demande
     },
   ],
 });
@@ -142,6 +142,59 @@ UserSchema.methods.createRefreshToken = function () {
     process.env.JWT_REFRESH_SECRET, // Clé secrète différente pour le refresh token
     { expiresIn: "7d" } // Durée de vie plus longue que l'access token
   );
+};
+
+UserSchema.methods.addFriendRequest = async function (fromUserId) {
+  // Vérifier si la demande existe déjà
+  const existingRequest = this.pendingFriendRequests.find(
+    (req) => req.from.toString() === fromUserId.toString()
+  );
+
+  if (existingRequest) {
+    throw new Error("Cette demande d'ami existe déjà.");
+  }
+
+  // Ajouter la demande
+  this.pendingFriendRequests.push({ from: fromUserId });
+  await this.save();
+};
+
+UserSchema.methods.acceptFriendRequest = async function (fromUserId) {
+  // Trouver la demande
+  const requestIndex = this.pendingFriendRequests.findIndex(
+    (req) => req.from.toString() === fromUserId.toString()
+  );
+
+  if (requestIndex === -1) {
+    throw new Error("Aucune demande d'ami trouvée.");
+  }
+
+  // Ajouter l'ami
+  this.friends.push({ friendId: fromUserId });
+
+  // Supprimer la demande d'ami
+  this.pendingFriendRequests.splice(requestIndex, 1);
+  await this.save();
+
+  // Ajouter l'ami dans l'autre utilisateur
+  const fromUser = await this.model("User").findById(fromUserId);
+  fromUser.friends.push({ friendId: this._id });
+  await fromUser.save();
+};
+
+UserSchema.methods.declineFriendRequest = async function (fromUserId) {
+  // Trouver la demande
+  const requestIndex = this.pendingFriendRequests.findIndex(
+    (req) => req.from.toString() === fromUserId.toString()
+  );
+
+  if (requestIndex === -1) {
+    throw new Error("Aucune demande d'ami trouvée.");
+  }
+
+  // Supprimer la demande d'ami
+  this.pendingFriendRequests.splice(requestIndex, 1);
+  await this.save();
 };
 
 export default model("User", UserSchema);

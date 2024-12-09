@@ -45,6 +45,8 @@ const Profil = ({
 }) => {
   // États utilisateur
   const { status, lastOnline } = useContext(UserStatusContext);
+  const [friends, setFriends] = useState([]);
+  const [onlineCount, setOnlineCount] = useState(0);
   const [pseudo, setPseudo] = useState("");
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
@@ -71,32 +73,52 @@ const Profil = ({
     const userId = localStorage.getItem("userId");
 
     if (userId) {
-      // Lorsque le composant est monté, envoyer 'userOnline' pour indiquer que l'utilisateur est en ligne
+      // Lorsque le composant est monté, signaler que l'utilisateur est en ligne
       socket.emit("userOnline", userId);
 
-      // Ajouter un écouteur de déconnexion
+      // Ajouter des écouteurs pour les événements liés à Socket.IO
       socket.on("disconnect", () => {
         console.log("Déconnecté du serveur");
       });
 
-      // Écouter les erreurs de connexion
       socket.on("connect_error", (err) => {
         console.error("Erreur de connexion Socket.IO :", err);
       });
 
-      // Écouter les tentatives de reconnexion
       socket.on("reconnect_attempt", (attempt) => {
         console.log(`Tentative de reconnexion n°${attempt}`);
       });
+
+      // Écouter les mises à jour de statut des amis
+      socket.on("friendStatusUpdate", ({ userId, status, lastOnline }) => {
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) =>
+            friend.id === userId
+              ? {
+                  ...friend,
+                  status,
+                  lastOnline: lastOnline || friend.lastOnline,
+                }
+              : friend
+          )
+        );
+
+        // Mettre à jour le nombre d'amis en ligne
+        const onlineFriends = friends.filter(
+          (friend) => friend.status === "online"
+        );
+        setOnlineCount(onlineFriends.length);
+      });
     }
 
-    // Fonction de nettoyage pour signaler que l'utilisateur est hors ligne quand il quitte la page
+    // Fonction de nettoyage pour signaler que l'utilisateur est hors ligne lorsqu'il quitte la page
     return () => {
       if (userId) {
         socket.emit("userOffline", userId);
       }
+      socket.off("friendStatusUpdate"); // Nettoyer l'écouteur
     };
-  }, []);
+  }, [friends]);
 
   // Avatars prédéfinis (liens Cloudinary)
   const predefinedAvatars = Array.from(
@@ -181,6 +203,20 @@ const Profil = ({
       setError("Erreur lors de la mise à jour du profil utilisateur");
     }
   };
+  // Charger la liste des amis
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const friendsList = await getFriends();
+        setFriends(friendsList || []);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des amis :", error);
+        setError("Impossible de charger la liste des amis.");
+      }
+    };
+
+    fetchFriends();
+  }, []);
 
   // Récupérer les avatars de Cloudinary au chargement du composant
   useEffect(() => {
@@ -351,28 +387,26 @@ const Profil = ({
           </div>
         )}
       </div>
-
       {/* Amis */}
-      <div className="friends mb-8">
-        <h3 className="text-2xl font-semibold text-white mb-4">Amis</h3>
-        <div className="grid grid-cols-3 gap-4">
-          {predefinedAvatars.slice(0, 9).map((avatarUrl, index) => (
-            <div
-              key={index}
-              className="friend-card flex items-center bg-gray-800 p-4 rounded-md"
-            >
-              <img
-                src={avatarUrl}
-                alt={`Avatar ${index + 1}`}
-                className="w-16 h-16 rounded-full border-2 border-white mr-4"
-              />
-              <div>
-                <p className="text-xl text-white">Ami #{index + 1}</p>
-                <span className="text-sm text-gray-400">Hors ligne</span>
-              </div>
-            </div>
+      <div>
+        <h3>
+          Vous avez {friends.length} amis, dont {onlineCount} en ligne
+        </h3>
+        <ul>
+          {friends.map((friend) => (
+            <li key={friend.id}>
+              <p>Pseudo : {friend.pseudo}</p>
+              <p>
+                Statut :{" "}
+                {friend.status === "online"
+                  ? "En ligne"
+                  : friend.status === "busy"
+                  ? "Occupé"
+                  : `Hors ligne depuis ${moment(friend.lastOnline).fromNow()}`}
+              </p>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
       {/* Sélection d'avatar et paramètres du profil */}
       {showAvatarModal && (

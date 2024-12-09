@@ -28,10 +28,25 @@ io.on("connection", (socket) => {
       socket.userId = userId;
 
       // Mettre à jour le statut de l'utilisateur dans la base de données
-      await User.findByIdAndUpdate(userId, { status: "online" });
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { status: "online" },
+        { new: true } // Renvoyer le document mis à jour
+      ).populate("friends.friendId", "pseudo avatar status");
 
-      // Notifier tous les autres utilisateurs que cet utilisateur est en ligne
-      socket.broadcast.emit("userStatusUpdate", { userId, status: "online" });
+      if (!user) {
+        console.error("Utilisateur introuvable lors de la connexion.");
+        return;
+      }
+
+      // Notifier uniquement les amis de cet utilisateur
+      user.friends.forEach((friend) => {
+        const friendId = friend.friendId._id.toString();
+        io.to(friendId).emit("userStatusUpdate", {
+          userId,
+          status: "online",
+        });
+      });
     } catch (error) {
       console.error(
         "Erreur lors de la mise à jour du statut utilisateur :",
@@ -49,12 +64,25 @@ io.on("connection", (socket) => {
     if (userId) {
       try {
         // Mettre à jour le statut de l'utilisateur dans la base de données
-        await User.findByIdAndUpdate(userId, { status: "offline" });
-
-        // Notifier tous les autres utilisateurs que cet utilisateur est hors ligne
-        socket.broadcast.emit("userStatusUpdate", {
+        const user = await User.findByIdAndUpdate(
           userId,
-          status: "offline",
+          { status: "offline", lastOnline: new Date() },
+          { new: true }
+        ).populate("friends.friendId", "pseudo avatar status");
+
+        if (!user) {
+          console.error("Utilisateur introuvable lors de la déconnexion.");
+          return;
+        }
+
+        // Notifier uniquement les amis de cet utilisateur
+        user.friends.forEach((friend) => {
+          const friendId = friend.friendId._id.toString();
+          io.to(friendId).emit("userStatusUpdate", {
+            userId,
+            status: "offline",
+            lastOnline: user.lastOnline,
+          });
         });
       } catch (error) {
         console.error(

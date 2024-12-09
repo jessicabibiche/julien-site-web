@@ -159,13 +159,13 @@ export const searchUser = async (pseudo, discriminator) => {
   }
 };
 
-// Fonction pour obtenir les amis d'un utilisateur
-export const getUserFriends = async (userId) => {
+// Fonction pour obtenir les amis d'un utilisateur connecté
+export const getFriends = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/users/${userId}/friends`, {
-      withCredentials: true, // Inclure les cookies signés
+    const response = await axios.get(`${baseUrl}/users/get-friends`, {
+      withCredentials: true,
     });
-    return response.data;
+    return response.data.friends;
   } catch (error) {
     console.error("Erreur lors de la récupération des amis :", error);
     throw error;
