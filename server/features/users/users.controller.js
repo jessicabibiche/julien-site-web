@@ -2,6 +2,12 @@ import User from "../users/users.model.js";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import Notification from "./Notification.js";
+import { ProjectClient } from "magicbell/project-client";
+
+const magicBell = new ProjectClient({
+  apiKey: process.env.VITE_MAGICBELL_API_KEY,
+  apiSecret: process.env.VITE_MAGICBELL_API_SECRET,
+});
 
 // ajouter un ami
 const addFriend = async (req, res) => {
@@ -38,8 +44,17 @@ const addFriend = async (req, res) => {
       });
     }
 
+    // Ajouter la demande d'ami
     friend.pendingFriendRequests.push({ from: userId });
     await friend.save();
+
+    // Envoyer une notification via MagicBell
+    await magicBell.notifications.create({
+      title: "Nouvelle demande d'ami",
+      content: `${req.user.pseudo} vous a envoyé une demande d'ami.`,
+      recipients: [{ external_id: friendId }],
+      category: "friend_request",
+    });
 
     res
       .status(StatusCodes.OK)
@@ -324,12 +339,9 @@ const testNotification = async (req, res) => {
         .json({ message: "toUserId and message are required." });
     }
 
-    // Log details for debugging
     console.log("Sending notification to:", toUserId);
     console.log("Message:", message);
 
-    // Here, you would implement the logic to send the notification
-    // For example, using some notification service:
     const result = await sendNotification(toUserId, message);
 
     console.log("Notification result:", result);
@@ -354,21 +366,27 @@ const getFriendRequests = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.userId;
 
-    const user = await User.findById(userId).populate(
-      "pendingFriendRequests.from",
-      "pseudo avatar"
-    );
+    // Récupérer l'utilisateur et peupler les demandes d'amis
+    const user = await User.findById(userId)
+      .populate("pendingFriendRequests.from", "pseudo avatar discriminator")
+      .exec();
 
+    // Vérifier si l'utilisateur existe
     if (!user) {
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ message: "Utilisateur non trouvé." });
     }
 
+    // Log des demandes peuplées pour déboguer
+    console.log("Friend requests:", user.pendingFriendRequests);
+
+    // Construire une réponse propre
     const friendRequests = user.pendingFriendRequests.map((request) => ({
-      id: request.from._id,
-      pseudo: request.from.pseudo,
-      avatar: request.from.avatar,
+      id: request._id,
+      pseudo: request.from?.pseudo || "Utilisateur inconnu",
+      avatar: request.from?.avatar || "",
+      discriminator: request.from?.discriminator || "",
       sentAt: request.sentAt,
     }));
 
@@ -383,13 +401,12 @@ const getFriendRequests = async (req, res) => {
       .json({ message: "Erreur interne." });
   }
 };
+
 const respondToFriendRequest = async (req, res) => {
   try {
     const token = req.signedCookies.token;
     if (!token) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: "Token manquant." });
+      return res.status(401).json({ message: "Token manquant." });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -397,36 +414,50 @@ const respondToFriendRequest = async (req, res) => {
     const { requestId, action } = req.body;
 
     const user = await User.findById(userId);
-    const request = user.pendingFriendRequests.find(
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    const requestIndex = user.pendingFriendRequests.findIndex(
       (req) => req._id.toString() === requestId
     );
 
-    if (!request) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "Demande non trouvée." });
+    if (requestIndex === -1) {
+      return res.status(404).json({ message: "Demande introuvable." });
     }
+
+    const fromUserId = user.pendingFriendRequests[requestIndex].from;
 
     if (action === "accept") {
-      user.friends.push({ friendId: request.from });
-      const friend = await User.findById(request.from);
-      friend.friends.push({ friendId: userId });
-      await friend.save();
+      await user.acceptFriendRequest(requestId);
+
+      // Envoyer une notification
+      await magicBell.notifications.create({
+        title: "Demande d'ami acceptée",
+        content: `${req.user.pseudo} a accepté votre demande d'ami.`,
+        recipients: [{ external_id: fromUserId }],
+        category: "friend_request_accepted",
+      });
+
+      res.status(200).json({ message: "Demande acceptée." });
+    } else if (action === "decline") {
+      await user.declineFriendRequest(requestId);
+
+      // Envoyer une notification
+      await magicBell.notifications.create({
+        title: "Demande d'ami refusée",
+        content: `${req.user.pseudo} a refusé votre demande d'ami.`,
+        recipients: [{ external_id: fromUserId }],
+        category: "friend_request_declined",
+      });
+
+      res.status(200).json({ message: "Demande refusée." });
+    } else {
+      res.status(400).json({ message: "Action invalide." });
     }
-
-    user.pendingFriendRequests = user.pendingFriendRequests.filter(
-      (req) => req._id.toString() !== requestId
-    );
-    await user.save();
-
-    res.status(StatusCodes.OK).json({
-      message: `Demande ${action === "accept" ? "acceptée" : "refusée"}.`,
-    });
   } catch (error) {
     console.error("Erreur lors du traitement de la demande :", error);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: "Erreur interne." });
+    res.status(500).json({ message: "Erreur interne." });
   }
 };
 

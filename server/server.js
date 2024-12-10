@@ -55,6 +55,51 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Ajout des événements pour les demandes et réponses d'amis
+   */
+
+  // Lorsqu'une demande d'ami est envoyée
+  socket.on("friendRequestSent", async (data) => {
+    try {
+      console.log(
+        `Nouvelle demande d'ami envoyée de ${data.fromUserId} à ${data.toUserId}`
+      );
+
+      // Notifier l'utilisateur cible de la demande d'ami
+      io.to(data.toUserId).emit("newFriendRequest", {
+        fromUserId: data.fromUserId,
+        pseudo: data.pseudo, // Nom du demandeur
+        avatar: data.avatar, // Avatar du demandeur
+      });
+    } catch (error) {
+      console.error(
+        "Erreur lors de l'envoi de la demande d'ami via Socket.IO :",
+        error
+      );
+    }
+  });
+
+  // Lorsqu'une demande d'ami est acceptée ou refusée
+  socket.on("friendRequestResponse", async (data) => {
+    try {
+      console.log(
+        `Réponse à la demande d'ami de ${data.fromUserId}: ${data.action}`
+      );
+
+      // Notifier l'utilisateur qui a envoyé la demande initiale
+      io.to(data.fromUserId).emit("friendRequestUpdated", {
+        action: data.action, // "accept" ou "decline"
+        pseudo: data.pseudo, // Nom de l'utilisateur cible
+      });
+    } catch (error) {
+      console.error(
+        "Erreur lors de l'envoi de la réponse à la demande d'ami via Socket.IO :",
+        error
+      );
+    }
+  });
+
   // Gérer la déconnexion de l'utilisateur
   socket.on("disconnect", async () => {
     console.log(`Utilisateur déconnecté : ${socket.id}`);

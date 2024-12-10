@@ -96,15 +96,16 @@ const UserSchema = new Schema({
       status: {
         type: String,
         enum: ["pending", "accepted", "rejected"],
-        default: "pending", // Par défaut, la demande est en attente
+        default: "pending",
       },
       addedAt: { type: Date, default: Date.now },
     },
   ],
   pendingFriendRequests: [
     {
-      from: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Utilisateur qui a envoyé la demande
-      sentAt: { type: Date, default: Date.now }, // Date de la demande
+      _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+      from: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      sentAt: { type: Date, default: Date.now },
     },
   ],
 });
@@ -164,15 +165,17 @@ UserSchema.methods.addFriendRequest = async function (fromUserId) {
   await this.save();
 };
 
-UserSchema.methods.acceptFriendRequest = async function (fromUserId) {
-  // Trouver la demande
+UserSchema.methods.acceptFriendRequest = async function (requestId) {
+  // Trouver la demande par son ID unique
   const requestIndex = this.pendingFriendRequests.findIndex(
-    (req) => req.from.toString() === fromUserId.toString()
+    (req) => req._id.toString() === requestId
   );
 
   if (requestIndex === -1) {
     throw new Error("Aucune demande d'ami trouvée.");
   }
+
+  const fromUserId = this.pendingFriendRequests[requestIndex].from;
 
   // Ajouter l'ami
   this.friends.push({ friendId: fromUserId });
@@ -187,10 +190,10 @@ UserSchema.methods.acceptFriendRequest = async function (fromUserId) {
   await fromUser.save();
 };
 
-UserSchema.methods.declineFriendRequest = async function (fromUserId) {
-  // Trouver la demande
+UserSchema.methods.declineFriendRequest = async function (requestId) {
+  // Trouver la demande par son ID unique
   const requestIndex = this.pendingFriendRequests.findIndex(
-    (req) => req.from.toString() === fromUserId.toString()
+    (req) => req._id.toString() === requestId
   );
 
   if (requestIndex === -1) {

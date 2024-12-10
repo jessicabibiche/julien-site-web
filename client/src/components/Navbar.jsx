@@ -7,9 +7,7 @@ import { UserStatusContext } from "../context/UserStatusContext.jsx";
 import { logout, checkAuth } from "../services/auth.services.js";
 import { searchUser, addFriend } from "../services/user.services.js";
 import socket from "../services/socketClient.js";
-import { getNotifications } from "../services/notification.services.js";
-
-import { FiBell } from "react-icons/fi";
+import MagicBellWidget from "./MagicBellWidget.jsx";
 
 function Navbar({
   isAuthenticated,
@@ -24,6 +22,7 @@ function Navbar({
   const [langue, setLangue] = useState(
     localStorage.getItem("langue") || "Français"
   );
+  const [user, setUser] = useState(null);
   const { status, setStatus } = useContext(UserStatusContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
@@ -34,23 +33,7 @@ function Navbar({
   const [isAdding, setIsAdding] = useState({});
   const dropdownRef = useRef(null);
   const searchContainerRef = useRef(null);
-  const [notificationCount, setNotificationCount] = useState(0);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const notifications = await getNotifications();
-        setNotificationCount(notifications.length);
-      } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des notifications :",
-          error
-        );
-      }
-    };
-
-    fetchNotifications();
-  }, []);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -145,6 +128,24 @@ function Navbar({
     setSearchQuery(query);
     handleSearch(query);
   };
+  // Récupération des informations utilisateur à partir du cookie signé
+  const getSignedUser = () => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split("; authToken=");
+    if (parts.length === 2) {
+      const token = parts.pop().split(";").shift();
+      try {
+        const decodedToken = JSON.parse(atob(token.split(".")[1]));
+        console.log("Utilisateur récupéré à partir du cookie :", decodedToken);
+        return decodedToken;
+      } catch (error) {
+        console.error("Erreur lors du décodage du token :", error);
+        return null;
+      }
+    }
+    console.warn("Aucun cookie authToken trouvé.");
+    return null;
+  };
 
   return (
     <nav className="relative bg-black p-4 shadow-lg flex justify-between items-center">
@@ -170,7 +171,6 @@ function Navbar({
           </span>
         ))}
       </div>
-
       {/* Navigation Links */}
       <div className="hidden md:flex space-x-6 text-lg">
         <Link
@@ -293,7 +293,6 @@ function Navbar({
           </div>
         )}
       </div>
-
       {/* Search Bar */}
       <div className="relative hidden md:flex items-center">
         {showSearch && (
@@ -355,7 +354,9 @@ function Navbar({
           </div>
         )}
       </div>
-
+      {/* MagicBell Widget */}
+      <MagicBellWidget user={user} />
+      <p>Widget chargé</p>
       {/* Bouton de soutien */}
       <Link
         to="/donations"
@@ -364,7 +365,6 @@ function Navbar({
       >
         <FaGamepad className="animate-pulse" /> <span>Soutenir</span>
       </Link>
-
       {/* User Avatar or Authentication Buttons */}
       {!isAuthenticated ? (
         <div className="hidden md:flex space-x-4">
@@ -458,20 +458,6 @@ function Navbar({
           )}
         </div>
       )}
-      <div className="relative">
-        <Link
-          to="/notifications"
-          className="relative text-white hover:text-yellow-400 flex items-center"
-        >
-          <FiBell size={24} />
-          {notificationCount > 0 && (
-            <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs px-2">
-              {notificationCount}
-            </span>
-          )}
-        </Link>
-      </div>
-
       {/* Sélecteur de langue */}
       <div className="relative ml-4">
         {/* Language Selector only on Desktop */}
@@ -503,7 +489,6 @@ function Navbar({
           animation: "gold-line 3s infinite",
         }}
       ></div>
-
       <style>
         {`
       .subtle-glow-letter {

@@ -98,3 +98,17 @@ export const checkAuth = async () => {
     return { authenticated: false };
   }
 };
+export const getMagicBellUser = async () => {
+  try {
+    const response = await axios.get(`${baseUrl}/magicbell-user`, {
+      withCredentials: true, // Nécessaire pour les cookies signés
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des données MagicBell :",
+      error
+    );
+    throw error;
+  }
+};

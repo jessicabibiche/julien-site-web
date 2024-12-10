@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+const baseUrl = import.meta.env.VITE_API_URL;
 
 // Fonction pour supprimer un compte utilisateur
 export const deleteUserAccount = async () => {
@@ -175,10 +175,10 @@ export const getFriends = async () => {
 
 export const getFriendRequests = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/friend-requests`, {
-      withCredentials: true, // Nécessaire pour les cookies signés
+    const response = await axios.get(`${baseUrl}/users/friend-requests`, {
+      withCredentials: true,
     });
-    return response.data.friendRequests; // Assurez-vous que le backend retourne un champ "friendRequests"
+    return response.data.friendRequests;
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des demandes d'amis :",
@@ -192,7 +192,7 @@ export const getFriendRequests = async () => {
 export const respondToFriendRequest = async (requestId, action) => {
   try {
     const response = await axios.post(
-      `${baseUrl}/friend-requests/respond`,
+      `${baseUrl}/users/respond-friend-request`,
       { requestId, action },
       { withCredentials: true }
     );

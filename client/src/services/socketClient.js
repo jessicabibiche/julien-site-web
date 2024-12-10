@@ -38,5 +38,14 @@ socket.on("userOnline", (user) => {
 socket.on("message", (message) => {
   console.log("Nouveau message :", message);
 });
+socket.on("newFriendRequest", (data) => {
+  console.log("Nouvelle demande d'ami reçue :", data);
+  // Affichez une notification ou mettez à jour l'interface
+});
+
+socket.on("friendRequestUpdated", (data) => {
+  console.log("Mise à jour de la demande d'ami :", data);
+  // Mettez à jour l'état des amis ou affichez une notification
+});
 
 export default socket;
