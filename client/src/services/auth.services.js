@@ -101,7 +101,7 @@ export const checkAuth = async () => {
 export const getMagicBellUser = async () => {
   try {
     const response = await axios.get(`${baseUrl}/magicbell-user`, {
-      withCredentials: true, // Nécessaire pour les cookies signés
+      withCredentials: true,
     });
     return response.data;
   } catch (error) {

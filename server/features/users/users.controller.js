@@ -1,7 +1,6 @@
 import User from "../users/users.model.js";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import Notification from "./Notification.js";
 import { ProjectClient } from "magicbell/project-client";
 
 const magicBell = new ProjectClient({
@@ -53,7 +52,7 @@ const addFriend = async (req, res) => {
       title: "Nouvelle demande d'ami",
       content: `${req.user.pseudo} vous a envoyé une demande d'ami.`,
       recipients: [{ external_id: friendId }],
-      category: "friend_request",
+      category: "friend_request", // Catégorie pour organiser les notifications
     });
 
     res
@@ -460,7 +459,37 @@ const respondToFriendRequest = async (req, res) => {
     res.status(500).json({ message: "Erreur interne." });
   }
 };
+const getMagicBellUser = async (req, res) => {
+  try {
+    const token = req.signedCookies.token;
 
+    if (!token) {
+      return res.status(401).json({ message: "Token manquant." });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    // Récupérer l'utilisateur connecté (si besoin, récupérer depuis MongoDB)
+    const user = await User.findById(userId).select("email pseudo _id");
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    // Retourner les données MagicBell de l'utilisateur
+    res.status(200).json({
+      email: user.email,
+      external_id: user._id,
+      pseudo: user.pseudo,
+    });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération de l'utilisateur MagicBell :",
+      error
+    );
+    res.status(500).json({ message: "Erreur interne du serveur." });
+  }
+};
 export {
   addFriend,
   removeFriend,
@@ -473,4 +502,5 @@ export {
   getNotifications,
   getFriendRequests,
   respondToFriendRequest,
+  getMagicBellUser,
 };

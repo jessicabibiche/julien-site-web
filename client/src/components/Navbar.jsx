@@ -7,7 +7,7 @@ import { UserStatusContext } from "../context/UserStatusContext.jsx";
 import { logout, checkAuth } from "../services/auth.services.js";
 import { searchUser, addFriend } from "../services/user.services.js";
 import socket from "../services/socketClient.js";
-import MagicBellWidget from "./MagicBellWidget.jsx";
+import MagicBellWidget from "./MagicBellWidget";
 
 function Navbar({
   isAuthenticated,
@@ -23,6 +23,7 @@ function Navbar({
     localStorage.getItem("langue") || "Français"
   );
   const [user, setUser] = useState(null);
+  console.log("Utilisateur récupéré dans Navbar :", user);
   const { status, setStatus } = useContext(UserStatusContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
@@ -73,10 +74,7 @@ function Navbar({
 
   const handleStatusChange = (newStatus) => {
     setStatus(newStatus);
-    socket.emit("statusUpdate", {
-      userId: localStorage.getItem("userId"),
-      status: newStatus,
-    });
+    socket.emit("statusUpdate", { userId: user?.id, status: newStatus });
   };
 
   const handleSearch = async (query) => {
@@ -109,7 +107,7 @@ function Navbar({
     console.log("Envoi de demande d'ami à l'ID :", friendId);
     try {
       setIsAdding((prev) => ({ ...prev, [friendId]: true }));
-      const response = await addFriend(friendId); // Envoie une demande au backend
+      const response = await addFriend(friendId);
       console.log("Demande d'ami envoyée :", response.message);
 
       alert("Demande d'ami envoyée !");
@@ -127,24 +125,6 @@ function Navbar({
     const query = e.target.value;
     setSearchQuery(query);
     handleSearch(query);
-  };
-  // Récupération des informations utilisateur à partir du cookie signé
-  const getSignedUser = () => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split("; authToken=");
-    if (parts.length === 2) {
-      const token = parts.pop().split(";").shift();
-      try {
-        const decodedToken = JSON.parse(atob(token.split(".")[1]));
-        console.log("Utilisateur récupéré à partir du cookie :", decodedToken);
-        return decodedToken;
-      } catch (error) {
-        console.error("Erreur lors du décodage du token :", error);
-        return null;
-      }
-    }
-    console.warn("Aucun cookie authToken trouvé.");
-    return null;
   };
 
   return (
@@ -355,8 +335,16 @@ function Navbar({
         )}
       </div>
       {/* MagicBell Widget */}
-      <MagicBellWidget user={user} />
-      <p>Widget chargé</p>
+      <div className="magicbell-container">
+        {isAuthenticated && user ? (
+          <MagicBellWidget user={user} />
+        ) : (
+          <p className="text-white">
+            Veuillez vous connecter pour voir vos notifications.
+          </p>
+        )}
+      </div>
+
       {/* Bouton de soutien */}
       <Link
         to="/donations"

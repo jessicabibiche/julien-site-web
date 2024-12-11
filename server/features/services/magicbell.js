@@ -6,11 +6,11 @@ export const sendMagicBellNotification = async (toUserId, message) => {
 
     const payload = {
       notification: {
-        title: "Nouvelle demande d'ami", // Un titre clair
-        content: message, // Message envoyé
+        title: "Nouvelle demande d'ami",
+        content: message,
         recipients: [
           {
-            external_id: toUserId, // MagicBell nécessite probablement un champ comme 'external_id'
+            external_id: toUserId,
           },
         ],
       },
@@ -23,8 +23,8 @@ export const sendMagicBellNotification = async (toUserId, message) => {
       payload,
       {
         headers: {
-          "X-MAGICBELL-API-KEY": process.env.MAGICBELL_API_KEY,
-          "X-MAGICBELL-API-SECRET": process.env.MAGICBELL_API_SECRET,
+          "X-MAGICBELL-API-KEY": process.env.VITE_MAGICBELL_API_KEY,
+          "X-MAGICBELL-API-SECRET": process.env.VITE_MAGICBELL_API_SECRET,
           "Content-Type": "application/json",
         },
       }

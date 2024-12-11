@@ -3,37 +3,66 @@ import MagicBell, {
   FloatingNotificationInbox,
 } from "@magicbell/magicbell-react";
 
-const MagicBellWidget = ({ user }) => {
-  if (!user || !user.email) {
-    console.warn(
-      "Utilisateur non authentifié ou email manquant pour MagicBell."
+const stores = [
+  { id: "default", defaultQueryParams: {} },
+  { id: "unread", defaultQueryParams: { read: false } },
+  { id: "billing", defaultQueryParams: { category: "billing" } },
+];
+
+const tabs = [
+  { storeId: "default", label: "Dernières" },
+  { storeId: "unread", label: "Non Lues" },
+  { storeId: "billing", label: "Facturation" },
+];
+
+export default function MagicBellWidget({ user }) {
+  const [userEmail, setUserEmail] = useState(null);
+  const [userKey, setUserKey] = useState(null);
+
+  useEffect(() => {
+    if (user && user.email && user.id) {
+      setUserEmail(user.email);
+      setUserKey(user.id);
+    } else {
+      console.warn("Informations utilisateur manquantes pour MagicBell:", user);
+    }
+  }, [user]);
+
+  if (!userEmail || !userKey) {
+    return (
+      <p className="text-white">
+        Veuillez vous connecter pour voir vos notifications.
+      </p>
     );
-    return null;
   }
 
   return (
     <MagicBell
-      apiKey={import.meta.env.VITE_MAGICBELL_API_KEY}
-      userEmail={user.email}
-      userExternalId={user.id}
-      theme={{
-        header: {
-          backgroundColor: "#000000",
-          textColor: "#FFFFFF",
-        },
-      }}
+      apiKey={import.meta.env.VITE_MAGICBELL_API_KEY} // Assurez-vous que cette clé est correcte
+      userEmail={userEmail}
+      userKey={userKey}
+      stores={stores}
+      defaultIsOpen={false}
     >
       {({ isOpen, toggle, launcherRef }) => (
-        <FloatingNotificationInbox
-          height={400}
-          width={300}
-          isOpen={isOpen}
-          toggle={toggle}
-          launcherRef={launcherRef}
-        />
+        <>
+          <button
+            ref={launcherRef}
+            onClick={toggle}
+            className="text-yellow-500 text-2xl"
+            style={{ cursor: "pointer" }}
+          >
+            🔔 {/* Icône de la cloche */}
+          </button>
+          <FloatingNotificationInbox
+            isOpen={isOpen}
+            toggle={toggle}
+            tabs={tabs}
+            height={450}
+            width={300}
+          />
+        </>
       )}
     </MagicBell>
   );
-};
-
-export default MagicBellWidget;
+}

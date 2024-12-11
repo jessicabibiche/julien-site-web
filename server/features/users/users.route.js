@@ -11,11 +11,13 @@ import {
   getNotifications,
   respondToFriendRequest,
   getFriendRequests,
+  getMagicBellUser,
 } from "./users.controller.js";
 import authenticateUser from "../../middlewares/auth.middleware.js";
 import upload from "../../middlewares/upload.middleware.js";
 
 const router = express.Router();
+router.get("/magicbell-user", authenticateUser, getMagicBellUser);
 
 router.post("/test-notification", testNotification);
 router.get("/notifications", authenticateUser, getNotifications);

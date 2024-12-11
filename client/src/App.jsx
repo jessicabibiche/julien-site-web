@@ -30,29 +30,24 @@ const PrivateRoute = ({ children, isAuthenticated }) => {
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userAvatar, setUserAvatar] = useState(defaultAvatar);
+  const [userAvatar, setUserAvatar] = useState(defaultAvatar); // <-- Vérifie que c'est bien là
   const [userPseudo, setUserPseudo] = useState("");
   const [neonColor, setNeonColor] = useState("#FDD403");
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         console.log("Vérification de l'authentification en cours...");
-        const authResponse = await checkAuth(); // Vérifie si l'utilisateur est authentifié
+        const authResponse = await checkAuth();
 
         if (authResponse.authenticated) {
           console.log("Utilisateur authentifié :", authResponse.user);
-          const userProfile = await getUserProfile(); // Récupère le profil utilisateur
+          const userProfile = await getUserProfile();
 
           setIsAuthenticated(true);
-          setUser({
-            avatar: userProfile.avatar || defaultAvatar,
-            pseudo: userProfile.pseudo || "Utilisateur",
-            neonColor: userProfile.neonColor || "#FDD403",
-            email: userProfile.email,
-            id: userProfile._id,
-          });
+          setUserAvatar(userProfile.avatar || defaultAvatar);
+          setUserPseudo(userProfile.pseudo || "Utilisateur");
+          setNeonColor(userProfile.neonColor || "#FDD403");
         } else {
           console.warn("Utilisateur non authentifié");
           throw new Error("Non authentifié");
@@ -64,7 +59,7 @@ function App() {
         );
         setIsAuthenticated(false);
       } finally {
-        setLoading(false); // Terminer le chargement
+        setLoading(false);
       }
     };
 
@@ -85,9 +80,13 @@ function App() {
         isAuthenticated={isAuthenticated}
         setIsAuthenticated={setIsAuthenticated}
         userAvatar={userAvatar}
+        setUserAvatar={setUserAvatar}
         userPseudo={userPseudo}
+        setUserPseudo={setUserPseudo}
         neonColor={neonColor}
+        setNeonColor={setNeonColor}
       />
+
       <div className="bg-black bg-opacity-60 min-h-screen">
         <Routes>
           <Route path="/" element={<Accueil />} />
