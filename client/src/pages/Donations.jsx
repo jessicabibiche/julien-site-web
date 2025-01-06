@@ -34,7 +34,6 @@ const Donations = () => {
     amountRef.current = amount;
   }, [amount]);
 
-  // Fonction pour gérer le paiement Stripe
   const handleStripeSubmit = async (event) => {
     event.preventDefault();
 
@@ -43,16 +42,13 @@ const Donations = () => {
     }
 
     try {
-      // Format du montant
       const formattedAmount = parseFloat(amount.replace(",", ".")).toFixed(2);
 
-      // Validation du montant
       if (isNaN(formattedAmount) || formattedAmount <= 0) {
         alert("Veuillez saisir un montant valide supérieur à 0.");
         return;
       }
 
-      // Création du PaymentIntent avec le montant en centimes
       const response = await fetch(
         `${apiUrl}/donations/create-payment-intent`,
         {
@@ -60,7 +56,8 @@ const Donations = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ amount: parseInt(formattedAmount * 100) }), // Montant en centimes
+          body: JSON.stringify({ amount: parseInt(formattedAmount * 100) }),
+          credentials: "include", // Assure l'envoi des cookies signés
         }
       );
 
@@ -77,7 +74,6 @@ const Donations = () => {
       });
 
       if (result.error) {
-        console.log("Stripe Result Error:", result.error);
         const errorMessages = {
           card_declined:
             "Le paiement a été refusé. Veuillez vérifier vos informations de carte ou essayer une autre carte.",
@@ -112,31 +108,18 @@ const Donations = () => {
 
   const handleAmountChange = (e) => {
     let input = e.target.value;
-    // Remplacer les virgules par des points
     input = input.replace(",", ".");
-    // Garder uniquement les chiffres et un seul point
-    const formattedInput = input
-      .replace(/[^0-9.]/g, "")
-      .replace(/(\..*)\./g, "$1");
-
     setAmount(input);
   };
 
   const createOrder = async () => {
     try {
-      const token = getCookie("token");
-
-      if (!token) {
-        throw new Error("Vous devez être connecté pour créer une commande.");
-      }
-
       const response = await axios.post(
-        "http://localhost:5000/api/v1/donations/orders",
+        `${apiUrl}/donations/orders`,
         { total: amountRef.current },
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           withCredentials: true,
         }
@@ -156,15 +139,13 @@ const Donations = () => {
   };
 
   const onApprove = async (data, actions) => {
-    const token = getCookie("token");
-
     try {
-      const { data: orderData } = await axios(
-        `http://localhost:5000/api/v1/donations/orders/${data.orderID}/capture`,
+      const { data: orderData } = await axios.post(
+        `${apiUrl}/donations/orders/${data.orderID}/capture`,
+        {},
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           withCredentials: true,
         }
@@ -195,77 +176,78 @@ const Donations = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-white max-w-lg mx-auto mt-12 p-10 rounded-xl shadow-2xl border border-teal-400 neon-box font-gamer">
-      <h1 className="text-4xl font-bold text-center text-teal-400 mb-10 neon-text">
-        Supportez le Streamer
-      </h1>
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="text-white max-w-lg p-8 rounded-lg shadow-2xl border border-yellow-500 bg-gradient-to-br from-black to-gray-800">
+        <h1 className="text-4xl font-extrabold text-center text-yellow-400 mb-6">
+          Supportez le Streamer
+        </h1>
 
-      {/* Montant du don (utilisé par Stripe et PayPal) */}
-      <div className="mb-10">
-        <h2 className="text-2xl text-teal-300 mb-6 text-center">
-          Insérer le montant de votre donation :
-        </h2>
-        <input
-          type="text"
-          inputMode="decimal"
-          pattern="[0-9.]*"
-          placeholder="Montant du don (en euros)"
-          value={amount}
-          onChange={handleAmountChange}
-          className="w-full p-4 mb-4 rounded bg-gray-800 text-teal-200 border border-teal-300 focus:outline-none focus:ring-4 focus:ring-teal-500 focus:ring-opacity-70 "
-        />
-      </div>
+        <div className="mb-6">
+          <h2 className="text-lg text-center text-yellow-300 mb-4">
+            Insérer le montant de votre donation :
+          </h2>
+          <input
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9.]*"
+            placeholder="Montant du don (en euros)"
+            value={amount}
+            onChange={handleAmountChange}
+            className="w-full p-2 rounded bg-gray-800 text-yellow-400 border border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
+        </div>
 
-      {/* Stripe Donation Form */}
-      <form className="mb-10" onSubmit={handleStripeSubmit}>
-        <div className="p-4 mb-6 bg-gray-800 rounded-lg border border-gray-700 shadow-md">
-          <CardElement
-            className="p-2 bg-transparent text-teal-300 placeholder-teal-500 focus:outline-none"
-            options={{
-              style: {
-                base: {
-                  iconColor: "#00f3ff",
-                  color: "#00f3ff",
-                  fontWeight: "500",
-                  fontFamily: "'Orbitron', sans-serif",
-                  fontSize: "16px",
-                  "::placeholder": {
-                    color: "#00ffff",
+        <form className="mb-6" onSubmit={handleStripeSubmit}>
+          <div className="p-4 bg-gray-800 rounded-lg border border-yellow-500">
+            <CardElement
+              className="p-2 bg-transparent text-yellow-400 placeholder-yellow-500"
+              options={{
+                style: {
+                  base: {
+                    iconColor: "#FFD700",
+                    color: "#FFD700",
+                    fontWeight: "500",
+                    fontFamily: "'Orbitron', sans-serif",
+                    fontSize: "16px",
+                    "::placeholder": {
+                      color: "#FFD700",
+                    },
+                  },
+                  invalid: {
+                    iconColor: "#FF4D4F",
+                    color: "#FF4D4F",
                   },
                 },
-                invalid: {
-                  iconColor: "#ff4d4f",
-                  color: "#ff4d4f",
-                },
-              },
-            }}
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full p-4 text-xl font-bold rounded bg-teal-500 hover:bg-teal-400 transition-transform transform hover:scale-110 shadow-lg neon-button "
-        >
-          Payer par Carte Bancaire
-        </button>
-      </form>
+              }}
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full mt-4 py-3 text-lg font-bold rounded bg-yellow-400 hover:bg-yellow-300 transition-transform transform hover:scale-105 text-black shadow-lg"
+          >
+            Payer par Carte Bancaire
+          </button>
+        </form>
 
-      {/* PayPal Donation */}
-      <PayPalScriptProvider options={initialOptions}>
-        <div className="flex justify-center">
-          <PayPalButtons
-            style={{
-              shape: "rect",
-              layout: "horizontal",
-              color: "gold",
-              label: "donate",
-            }}
-            createOrder={createOrder}
-            onApprove={onApprove}
-          />
-        </div>
-      </PayPalScriptProvider>
+        <PayPalScriptProvider options={initialOptions}>
+          <div className="flex justify-center">
+            <PayPalButtons
+              style={{
+                shape: "rect",
+                layout: "horizontal",
+                color: "gold",
+                label: "donate",
+              }}
+              createOrder={createOrder}
+              onApprove={onApprove}
+            />
+          </div>
+        </PayPalScriptProvider>
 
-      <div role="alert">{message}</div>
+        <div role="alert" className="text-center mt-4 text-red-500">
+          {message}
+        </div>
+      </div>
     </div>
   );
 };

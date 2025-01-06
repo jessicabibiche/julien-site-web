@@ -18,6 +18,8 @@ function Navbar({
   setUserPseudo,
   neonColor,
   setNeonColor,
+  userId, // Ajoute userId ici
+  userEmail,
 }) {
   const [langue, setLangue] = useState(
     localStorage.getItem("langue") || "Français"
@@ -34,6 +36,29 @@ function Navbar({
   const [isAdding, setIsAdding] = useState({});
   const dropdownRef = useRef(null);
   const searchContainerRef = useRef(null);
+  useEffect(() => {
+    console.log("Props reçues dans Navbar :", {
+      isAuthenticated,
+      userAvatar,
+      userPseudo,
+      neonColor,
+      userId, // Vérifiez que userId est transmis
+      userEmail,
+    });
+
+    if (isAuthenticated) {
+      const updatedUser = {
+        avatar: userAvatar,
+        pseudo: userPseudo,
+        neonColor,
+        id: userId, // Ajoutez l'ID utilisateur
+        email: userEmail,
+      };
+      console.log("Utilisateur avant mise à jour dans Navbar :", updatedUser);
+      setUser(updatedUser); // Mets à jour l'état user avec les nouvelles données
+      console.log("État utilisateur mis à jour :", updatedUser);
+    }
+  }, [isAuthenticated, userAvatar, userPseudo, neonColor, userId, userEmail]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

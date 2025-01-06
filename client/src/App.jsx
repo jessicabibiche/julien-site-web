@@ -29,11 +29,16 @@ const PrivateRoute = ({ children, isAuthenticated }) => {
 };
 
 function App() {
+  // État global pour l'utilisateur
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userAvatar, setUserAvatar] = useState(defaultAvatar); // <-- Vérifie que c'est bien là
-  const [userPseudo, setUserPseudo] = useState("");
-  const [neonColor, setNeonColor] = useState("#FDD403");
-  const [loading, setLoading] = useState(true);
+  const [userAvatar, setUserAvatar] = useState(defaultAvatar); // Avatar utilisateur par défaut
+  const [userPseudo, setUserPseudo] = useState(""); // Pseudo de l'utilisateur
+  const [neonColor, setNeonColor] = useState("#FDD403"); // Couleur de l'effet néon
+  const [loading, setLoading] = useState(true); // Gestion du chargement
+  const [userId, setUserId] = useState(null); // ID utilisateur
+  const [userEmail, setUserEmail] = useState(null); // Email utilisateur
+
+  // Récupération des données utilisateur lors du montage du composant
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -42,12 +47,13 @@ function App() {
 
         if (authResponse.authenticated) {
           console.log("Utilisateur authentifié :", authResponse.user);
-          const userProfile = await getUserProfile();
 
           setIsAuthenticated(true);
-          setUserAvatar(userProfile.avatar || defaultAvatar);
-          setUserPseudo(userProfile.pseudo || "Utilisateur");
-          setNeonColor(userProfile.neonColor || "#FDD403");
+          setUserId(authResponse.user._id); // Utilisez `_id` pour l'ID
+          setUserEmail(authResponse.user.email); // Récupérez l'email
+          setUserAvatar(authResponse.user.avatar || defaultAvatar); // Utilisez l'avatar
+          setUserPseudo(authResponse.user.pseudo || "Utilisateur"); // Utilisez le pseudo
+          setNeonColor(authResponse.user.neonColor || "#FDD403"); // Utilisez la couleur néon
         } else {
           console.warn("Utilisateur non authentifié");
           throw new Error("Non authentifié");
@@ -66,6 +72,7 @@ function App() {
     fetchUserData();
   }, []);
 
+  // Affiche un écran de chargement pendant la récupération des données
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-black">
@@ -76,6 +83,7 @@ function App() {
 
   return (
     <Router>
+      {/* Passe les informations utilisateur à la Navbar */}
       <Navbar
         isAuthenticated={isAuthenticated}
         setIsAuthenticated={setIsAuthenticated}
@@ -85,6 +93,8 @@ function App() {
         setUserPseudo={setUserPseudo}
         neonColor={neonColor}
         setNeonColor={setNeonColor}
+        userId={userId} // Passe userId à la Navbar
+        userEmail={userEmail} // Passe userEmail à la Navbar
       />
 
       <div className="bg-black bg-opacity-60 min-h-screen">
