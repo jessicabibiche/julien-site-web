@@ -1,11 +1,15 @@
 import User from "../users/users.model.js";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import { ProjectClient } from "magicbell/project-client";
+import axios from "axios";
 
-const magicBell = new ProjectClient({
-  apiKey: process.env.VITE_MAGICBELL_API_KEY,
-  apiSecret: process.env.VITE_MAGICBELL_API_SECRET,
+const magicBellClient = axios.create({
+  baseURL: "https://api.magicbell.com",
+  headers: {
+    "X-MAGICBELL-API-KEY": process.env.VITE_MAGICBELL_API_KEY,
+    "X-MAGICBELL-API-SECRET": process.env.VITE_MAGICBELL_API_SECRET,
+    "Content-Type": "application/json",
+  },
 });
 
 // ajouter un ami
@@ -48,11 +52,13 @@ const addFriend = async (req, res) => {
     await friend.save();
 
     // Envoyer une notification via MagicBell
-    await magicBell.notifications.create({
-      title: "Nouvelle demande d'ami",
-      content: `${req.user.pseudo} vous a envoyé une demande d'ami.`,
-      recipients: [{ external_id: friendId }],
-      category: "friend_request", // Catégorie pour organiser les notifications
+    await magicBellClient.post("/notifications", {
+      notification: {
+        title: "Nouvelle demande d'ami",
+        content: `${req.user.pseudo} vous a envoyé une demande d'ami.`,
+        recipients: [{ external_id: friendId }], // Identifiant unique de l'utilisateur
+        category: "friend_request", // Catégorie pour organiser les notifications
+      },
     });
 
     res

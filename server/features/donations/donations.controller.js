@@ -7,6 +7,7 @@ import {
   OrdersController,
 } from "@paypal/paypal-server-sdk";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 // Configurer Stripe
@@ -54,6 +55,8 @@ const stripeController = async (req, res) => {
     res.status(500).json({ error: errorMessage });
   }
 };
+
+// Configuration de PayPal
 const client = new Client({
   clientCredentialsAuthCredentials: {
     oAuthClientId: process.env.PAYPAL_CLIENT_ID,

@@ -139,15 +139,31 @@ const resetPassword = async (req, res) => {
 };
 
 // Vérification de l'authentification
-const checkAuth = (req, res) => {
+const checkAuth = async (req, res) => {
   const token = req.signedCookies?.token; // Récupérer le cookie signé
   if (!token) {
     return res.status(401).json({ message: "Pas de token fourni !" });
   }
+
   try {
+    // Décoder le token JWT
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    res.status(200).json({ authenticated: true, user: decodedToken });
+
+    // Récupérer l'utilisateur depuis la base de données
+    const user = await User.findById(decodedToken.userId).select(
+      "_id pseudo email avatar neonColor status"
+    ); // Limitez les champs récupérés pour des raisons de performance
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ authenticated: false, message: "Utilisateur non trouvé" });
+    }
+
+    // Retourner les détails de l'utilisateur
+    res.status(200).json({ authenticated: true, user });
   } catch (error) {
+    console.error("Erreur lors de la vérification du token :", error);
     res.status(401).json({ authenticated: false, message: "Token invalide" });
   }
 };

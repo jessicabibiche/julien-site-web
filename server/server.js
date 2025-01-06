@@ -17,7 +17,7 @@ const io = new Server(server, {
 
 // Gérer les connexions Socket.IO
 io.on("connection", (socket) => {
-  console.log(`Utilisateur connecté avec l'ID : ${socket.id}`);
+  console.log(`Une nouvelle connexion WebSocket établie : ${socket.id}`);
 
   // Gérer l'événement "userOnline"
   socket.on("userOnline", async (userId) => {
